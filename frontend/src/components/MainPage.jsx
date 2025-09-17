@@ -1,7 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-
-//import routes from '../routes.js'
+import routes from '../routes.js'
 
 const getAuthHeader = () => {
   const userId = JSON.parse(localStorage.getItem('userId'))
@@ -18,7 +17,7 @@ const MainPage = () => {
   useEffect(() => {
     const fetchContent = async () => {
       const { data } = await axios.get(routes.usersPath(), { headers: getAuthHeader() })
-      setContent(data)
+      setContent(`<h1>${data}<h1/>`)
     };
 
     fetchContent()

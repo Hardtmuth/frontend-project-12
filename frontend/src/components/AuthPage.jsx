@@ -1,22 +1,46 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Formik, useFormik } from 'formik'
 import { Form, Button, Container, Card } from 'react-bootstrap'
 import axios from 'axios';
 import './AuthPage.css'
+import useAuth from '../hooks/index.js';
+import routes from '../routes.js';
 
 const AuthPage = () => {
-  const navigate = useNavigate()
+  const auth = useAuth()
+  const [authFailed, setAuthFailed] = useState(false)
+  const inputRef = useRef()
   const location = useLocation()
-  const myStorage = window.localStorage
+  const navigate = useNavigate()
+  useEffect(() => {
+    inputRef.current.focus()
+  }, [])
 
   const formik = useFormik({
     initialValues: {
       username: '',
       password: '',
     },
-    onSubmit: (values) => {
-      console.log(JSON.stringify(values, null, 2))  // TODO rewrite to axios
+    onSubmit: async (values) => {
+      setAuthFailed(false);
+
+      try {
+        const res = await axios.post(routes.loginPath(), values)
+        localStorage.setItem('userId', JSON.stringify(res.data))
+        auth.logIn()
+        console.log(location)
+        //const { from } = location.state
+        navigate('/')
+      } catch (err) {
+        formik.setSubmitting(false)
+        if (err.isAxiosError && err.response.status === 401) {
+          setAuthFailed(true)
+          inputRef.current.select()
+          return;
+        }
+        throw err;
+      }
     },
   })
 
@@ -35,6 +59,9 @@ const AuthPage = () => {
               placeholder="Имя пользователя"
               onChange={formik.handleChange}
               value={formik.values.username}
+              isInvalid={authFailed}
+              required
+              ref={inputRef}
             />
           </Form.Group>
           <Form.Group className="mb-3" controlId="Password">
@@ -45,7 +72,11 @@ const AuthPage = () => {
               placeholder="Пароль"
               onChange={formik.handleChange}
               value={formik.values.password}
+              autoComplete="current-password"
+              isInvalid={authFailed}
+              required
             />
+            <Form.Control.Feedback type="invalid">the username or password is incorrect</Form.Control.Feedback>
           </Form.Group>
           <Button variant="primary" type="submit" className='float-end'>
             Войти
