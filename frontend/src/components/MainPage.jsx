@@ -17,8 +17,8 @@ const MainPage = () => {
   useEffect(() => {
     const fetchContent = async () => {
       const { data } = await axios.get(routes.usersPath(), { headers: getAuthHeader() })
-      setContent(`<h1>${data}<h1/>`)
-    };
+      setContent(`<h1>${JSON.stringify(data)}<h1/><p>${JSON.stringify(getAuthHeader())}</p>`)
+    }
 
     fetchContent()
   }, [])
