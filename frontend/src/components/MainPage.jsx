@@ -1,6 +1,9 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+
 import routes from '../routes.js'
+import { setData } from '../slices/mainPageSlice.js'
 
 const getAuthHeader = () => {
   const userId = JSON.parse(localStorage.getItem('userId'))
@@ -13,11 +16,17 @@ const getAuthHeader = () => {
 }
 
 const MainPage = () => {
-  const [content, setContent] = useState('')
+  //const [content, setContent] = useState('')
+
+  const content = useSelector(state => state.main.data)
+  // Возвращает метод store.dispatch() текущего хранилища
+  const dispatch = useDispatch()
+
   useEffect(() => {
     const fetchContent = async () => {
       const { data } = await axios.get(routes.usersPath(), { headers: getAuthHeader() })
-      setContent(`<h1>${JSON.stringify(data)}<h1/><p>${JSON.stringify(getAuthHeader())}</p>`)
+      await dispatch(setData(data))
+      console.log('content is: ', content)
     }
 
     fetchContent()
