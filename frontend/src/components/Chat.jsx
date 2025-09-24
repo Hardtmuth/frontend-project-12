@@ -1,11 +1,11 @@
 import React from 'react'
 import cn from 'classnames'
-import { Container, Row, Col, Button } from 'react-bootstrap'
+import { Container, Row, Col, Button, Form, InputGroup } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import './Chat.css'
 
 const containerCalsses = cn('h-100', 'my-4', 'rounded', 'shadow')
-const leftColCalsses = cn('h-100', 'col-md-2', 'border-end', 'bg-light')
+const leftColCalsses = cn('col-md-2', 'border-end', 'bg-light')
 const rightColClasses = cn('h-100', 'g-0')
 const roomHeaderClasses = cn('h-100', 'bg-light', 'mb-4', 'p-1', 'shadow-sm')
 
@@ -20,7 +20,8 @@ const Chat = () => {
     const data = JSON.parse(rooms) // FIX do parsing here?
     if (data.length !== 0) { // FIX revrite from IF condition
       return data.map((room) => {
-        const isActive = true // TODO How check active? from state
+        let isActive
+        room.name === 'general' ? isActive = true : isActive = false// TODO How check active? from state
         const liClasses = cn({ active: isActive })
         return <li className={liClasses} key={room.id}>{`# ${room.name}`}</li> // TODO do click action and remove button
       })
@@ -58,9 +59,21 @@ const Chat = () => {
             <h6>{selectedRoom}</h6>
             <p className='counter'>{messageCounter}</p>
           </div>
-          <p>Main Content</p>{/* TODO Message box */}
-          <p>{content}</p>{/* TODO Input box */}
-
+          <div className='messagebox'>
+            <b>admin</b>: test message
+            <br />
+            <b>user</b>: retest
+          </div>
+          {/*<p>Main Content</p> TODO Message box */}
+          {/*<p>{content}</p> TODO Input box */}
+          <Form> 
+             <InputGroup className="mb-3">
+            <Form.Control type="text" placeholder="write message" />
+            <Button id="button-addon2">
+              Отправить
+            </Button>
+            </InputGroup>
+          </Form>
         </Col>
       </Row>
     </Container>

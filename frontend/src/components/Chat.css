@@ -22,3 +22,12 @@ li {
   background-color: #5c636a;
   color: white;
 }
+
+form {
+  padding: 20px;
+}
+
+.messagebox {
+  padding-left: 25px;
+  height: 400px;
+}
