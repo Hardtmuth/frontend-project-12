@@ -1,9 +1,11 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import routes from '../routes.js'
 import { setData } from '../slices/mainPageSlice.js'
+
+import Chat from './Chat.jsx'
 
 const getAuthHeader = () => {
   const userId = JSON.parse(localStorage.getItem('userId'))
@@ -16,7 +18,6 @@ const getAuthHeader = () => {
 }
 
 const MainPage = () => {
-  //const [content, setContent] = useState('')
 
   const content = useSelector(state => state.main.data)
   // Возвращает метод store.dispatch() текущего хранилища
@@ -26,13 +27,15 @@ const MainPage = () => {
     const fetchContent = async () => {
       const { data } = await axios.get(routes.usersPath(), { headers: getAuthHeader() })
       await dispatch(setData(data))
-      console.log('content is: ', content)
+     // console.log('content is: ', content)
     }
 
     fetchContent()
   }, [])
 
-  return content && <p>{content}</p>
+  return content && (
+    <Chat />
+  )
 };
 
 export default MainPage

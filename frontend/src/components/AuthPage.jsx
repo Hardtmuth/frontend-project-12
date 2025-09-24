@@ -29,8 +29,8 @@ const AuthPage = () => {
         const res = await axios.post(routes.loginPath(), values)
         localStorage.setItem('userId', JSON.stringify(res.data))
         auth.logIn()
-        console.log(location)
-        //const { from } = location.state
+        // console.log(location)
+        // const { from } = location.state
         navigate('/')
       } catch (err) {
         formik.setSubmitting(false)

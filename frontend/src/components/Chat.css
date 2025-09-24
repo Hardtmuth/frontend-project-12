@@ -1,0 +1,24 @@
+h6 {
+  padding-top: 15px;
+  margin-left: 20px;
+}
+
+.counter {
+  margin-left: 20px;
+  font-size: small;
+}
+
+ul {
+  padding-left: 0px;
+}
+
+li {
+  padding: 8px ;
+  list-style-type: none;
+  /* margin-bottom: 10px; */
+}
+
+.active {
+  background-color: #5c636a;
+  color: white;
+}
