@@ -1,24 +1,23 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // Начальное значение
-const initialState = {
-  data: '',
-}
+const initialState = []
 
-const mainSlice = createSlice({
-  name: 'mainStore',
+const messagesSlice = createSlice({
+  name: 'messages',
   initialState,
   // Редьюсеры в слайсах меняют состояние и ничего не возвращают
   reducers: {
-    setData: (state, action) => {
-      state.data += JSON.stringify(action.payload)
+    setMessages: (state, action) => {
+      const newState = action.payload
+      state.push(...newState)
     }
   },
 })
 
 // Слайс генерирует действия, которые экспортируются отдельно
 // Действия генерируются автоматически из имен ключей редьюсеров
-export const { setData } = mainSlice.actions
+export const { setMessages } = messagesSlice.actions
 
 // По умолчанию экспортируется редьюсер, сгенерированный слайсом
-export default mainSlice.reducer
+export default messagesSlice.reducer

@@ -13,20 +13,18 @@ const selectedRoom = '#general'
 const messageCounter = '0 сообщений'
 
 const Chat = () => {
-  const content = useSelector(state => state.main.data)
+  const channels = useSelector(state => state.channels)
+  console.log('Chat channels is: ', channels)
 
+  const messages = useSelector(state => state.messages)
+  console.log('Chat messages is: ', messages)
 
   const renderRoomsList = (rooms) => {
-    const data = JSON.parse(rooms) // FIX do parsing here?
-    if (data.length !== 0) { // FIX revrite from IF condition
-      return data.map((room) => {
-        let isActive
-        room.name === 'general' ? isActive = true : isActive = false// TODO How check active? from state
-        const liClasses = cn({ active: isActive })
+    return rooms.length ?
+      rooms.map((room) => {
+        const liClasses = cn({ active: room.name === 'general' })
         return <li className={liClasses} key={room.id}>{`# ${room.name}`}</li> // TODO do click action and remove button
-      })
-    }
-    return <></>
+      }) : null
   }
 
   return (
@@ -36,7 +34,7 @@ const Chat = () => {
           <div className='d-flex justify-content-between mt-4 mb-5 pb-3'>
             <b>Каналы</b>
           <Button className='p-0 btn btn-group-vertical'>
-            <svg 
+            <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
               width="20"
@@ -51,7 +49,7 @@ const Chat = () => {
           </Button>
           </div>
           <ul>
-            {renderRoomsList(content)}
+            {renderRoomsList(channels)}
           </ul>
         </Col>
         <Col className={rightColClasses}>
