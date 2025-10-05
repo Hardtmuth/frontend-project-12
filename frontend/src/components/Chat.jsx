@@ -1,8 +1,11 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import cn from 'classnames'
+import { Formik, useFormik } from 'formik'
 import { Container, Row, Col, Button, Form, InputGroup } from 'react-bootstrap'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import { useSelector, useDispatch } from 'react-redux'
 import './Chat.css'
+import { sendMessage } from '../slices/messagesSlice.js'
 
 const containerCalsses = cn('h-100', 'my-4', 'rounded', 'shadow')
 const leftColCalsses = cn('col-md-2', 'border-end', 'bg-light')
@@ -13,6 +16,9 @@ const selectedRoom = '#general'
 const messageCounter = '0 сообщений'
 
 const Chat = () => {
+  const inputRef = useRef()
+  const dispatch = useDispatch()
+
   const channels = useSelector(state => state.channels)
   console.log('Chat channels is: ', channels)
 
@@ -27,25 +33,31 @@ const Chat = () => {
       }) : null
   }
 
+  useEffect(() => {
+      inputRef.current.focus()
+    }, [])
+
+  const formik = useFormik({
+    initialValues: {
+      message: '',
+    },
+    onSubmit: async (values) => {
+      console.log('Sended message: ', values)
+      /* TODO POST message */
+      await dispatch(sendMessage())
+    },
+  })
+
+
   return (
+    <Formik>
     <Container className={containerCalsses} fluid="md">
       <Row>
         <Col className={leftColCalsses}>
           <div className='d-flex justify-content-between mt-4 mb-5 pb-3'>
             <b>Каналы</b>
           <Button className='p-0 btn btn-group-vertical'>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              width="20"
-              height="20"
-              fill="currentColor"
-              className="bi bi-plus-square"
-            >
-              <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"></path>
-              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"></path>
-            </svg>
-            <span className='visually-hidden'>+</span>
+            <i className="bi bi-plus-lg px-1"></i>
           </Button>
           </div>
           <ul>
@@ -62,11 +74,18 @@ const Chat = () => {
             <br />
             <b>user</b>: retest
           </div>
-          {/*<p>Main Content</p> TODO Message box */}
-          {/*<p>{content}</p> TODO Input box */}
-          <Form> 
+          <Form onSubmit={formik.handleSubmit}>
              <InputGroup className="mb-3">
-            <Form.Control type="text" placeholder="write message" />
+            <Form.Control
+              name="message"
+              type="text"
+              placeholder="write message"
+              onChange={formik.handleChange}
+              value={formik.values.message}
+              /* isInvalid={authFailed} */
+              required
+              ref={inputRef}
+            />
             <Button id="button-addon2">
               Отправить
             </Button>
@@ -75,6 +94,7 @@ const Chat = () => {
         </Col>
       </Row>
     </Container>
+    </Formik>
   )
 }
 

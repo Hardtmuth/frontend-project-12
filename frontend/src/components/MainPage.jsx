@@ -19,10 +19,8 @@ const getAuthHeader = () => {
 }
 
 const MainPage = () => {
-
   const channels = useSelector(state => state.channels)
   const messages = useSelector(state => state.messages)
-  // Возвращает метод store.dispatch() текущего хранилища
   const dispatch = useDispatch()
 
   useEffect(() => {
