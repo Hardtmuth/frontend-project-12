@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import routes from '../routes.js'
 import { setChannels } from '../slices/channelsSlice.js'
-import { setMessages } from '../slices/messagesSlice.js'
+import { getMessages } from '../slices/messagesSlice.js'
 
 import Chat from './Chat.jsx'
 
@@ -19,7 +19,7 @@ const getAuthHeader = () => {
 }
 
 const MainPage = () => {
-  const channels = useSelector(state => state.channels)
+  const channels = useSelector(state => state.channels.list)
   const messages = useSelector(state => state.messages)
   const dispatch = useDispatch()
 
@@ -27,13 +27,13 @@ const MainPage = () => {
     const fetchChanels = async () => {
       const { data } = await axios.get(routes.channelsPath(), { headers: getAuthHeader() })
       await dispatch(setChannels(data))
-      console.log('Main channels is: ', channels)
+      // console.log('Main channels is: ', channels)
     }
 
     const fetchMessages = async () => {
       const { data } = await axios.get(routes.messagesPath(), { headers: getAuthHeader() })
-      await dispatch(setMessages(data))
-      console.log('Main messages is: ', messages)
+      await dispatch(getMessages(data))
+      // console.log('Main messages is: ', messages)
     }
 
     fetchChanels()

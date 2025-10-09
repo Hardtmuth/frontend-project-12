@@ -5,31 +5,29 @@ import { Container, Row, Col, Button, Form, InputGroup } from 'react-bootstrap'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { useSelector, useDispatch } from 'react-redux'
 import './Chat.css'
+import { setActiveChannel } from '../slices/channelsSlice.js'
 import { sendMessage } from '../slices/messagesSlice.js'
 
-const containerCalsses = cn('h-100', 'my-4', 'rounded', 'shadow')
-const leftColCalsses = cn('col-md-2', 'border-end', 'bg-light')
-const rightColClasses = cn('h-100', 'g-0')
-const roomHeaderClasses = cn('h-100', 'bg-light', 'mb-4', 'p-1', 'shadow-sm')
-
-const selectedRoom = '#general'
-const messageCounter = '0 сообщений'
 
 const Chat = () => {
+  //console.log('State is: ', useSelector(state => state))
   const inputRef = useRef()
   const dispatch = useDispatch()
 
   const channels = useSelector(state => state.channels)
-  console.log('Chat channels is: ', channels)
+  // console.log('Chat channels is: ', channels)
 
   const messages = useSelector(state => state.messages)
-  console.log('Chat messages is: ', messages)
+  // console.log('Chat messages is: ', messages)
+
+  const selectedRoom = `#${channels.activeChannel.name}`
+  const messageCounter = `${messages.length} сообщений` /* TODO add i18n */
 
   const renderRoomsList = (rooms) => {
     return rooms.length ?
       rooms.map((room) => {
-        const liClasses = cn({ active: room.name === 'general' })
-        return <li className={liClasses} key={room.id}>{`# ${room.name}`}</li> // TODO do click action and remove button
+        const liClasses = cn({ active: room.name === channels.activeChannel.name })
+        return <li className={liClasses} key={room.id} onClick={() => dispatch(setActiveChannel({ id: room.id, name: room.name }))}>{`# ${room.name}`}</li> // TODO add remove button on new channels
       }) : null
   }
 
@@ -41,19 +39,19 @@ const Chat = () => {
     initialValues: {
       message: '',
     },
-    onSubmit: async (values) => {
-      console.log('Sended message: ', values)
-      /* TODO POST message */
-      await dispatch(sendMessage())
+    onSubmit: async (body) => {
+      const { token, username } = JSON.parse(localStorage.userId)
+      const payload = { token, username, body: body.message, channelId: channels.activeChannel.id }
+      dispatch(sendMessage(payload))
     },
   })
 
 
   return (
     <Formik>
-    <Container className={containerCalsses} fluid="md">
+    <Container className='h-100 my-4 rounded shadow' fluid='md'>
       <Row>
-        <Col className={leftColCalsses}>
+        <Col className='col-md-2 border-end bg-light'>
           <div className='d-flex justify-content-between mt-4 mb-5 pb-3'>
             <b>Каналы</b>
           <Button className='p-0 btn btn-group-vertical'>
@@ -61,11 +59,11 @@ const Chat = () => {
           </Button>
           </div>
           <ul>
-            {renderRoomsList(channels)}
+            {renderRoomsList(channels.list)}
           </ul>
         </Col>
-        <Col className={rightColClasses}>
-          <div className={roomHeaderClasses}>
+        <Col className='h-100 g-0'>
+          <div className='h-100 bg-light mb-4 p-1 shadow-sm'>
             <h6>{selectedRoom}</h6>
             <p className='counter'>{messageCounter}</p>
           </div>
@@ -86,7 +84,7 @@ const Chat = () => {
               required
               ref={inputRef}
             />
-            <Button id="button-addon2">
+            <Button id="button-addon2" onClick={formik.handleSubmit}>
               Отправить
             </Button>
             </InputGroup>

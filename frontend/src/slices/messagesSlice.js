@@ -8,15 +8,15 @@ const messagesSlice = createSlice({
   name: 'messages',
   initialState,
   reducers: {
-    setMessages: (state, action) => {
+    getMessages: (state, action) => {
       const newState = action.payload
       state.push(...newState)
     },
-    sendMessage: () => {
-      const newMessage = { body: 'sdas', channelId: '1', username: 'admin' }
-      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc1ODEyNzY1NX0.roxPw8yrkOfY6H6kxCve5sBpOD-RL6yHYxUPEjWTy_4'
+    sendMessage: (state, action) => {
+      const { body, channelId, username, token } = action.payload
+      const message = { body, channelId, username }
 
-      axios.post('http://localhost:5002/api/v1/messages', newMessage, {
+      axios.post('http://localhost:5002/api/v1/messages', message, { /* TODO rewrite PATH */
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -27,5 +27,5 @@ const messagesSlice = createSlice({
   },
 })
 
-export const { setMessages, sendMessage } = messagesSlice.actions
+export const { getMessages, sendMessage } = messagesSlice.actions
 export default messagesSlice.reducer

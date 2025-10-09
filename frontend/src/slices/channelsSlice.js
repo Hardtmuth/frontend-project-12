@@ -1,23 +1,29 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // Начальное значение
-const initialState = []
+const initialState = {
+  activeChannel: { id: 1, name: 'general'},
+  list: []
+}
 
 const channelsSlice = createSlice({
   name: 'channels',
   initialState,
-  // Редьюсеры в слайсах меняют состояние и ничего не возвращают
   reducers: {
     setChannels: (state, action) => {
-      const newState = action.payload
-      state.push(...newState)
+      return {
+        ...state,
+        list: [ ...action.payload ]
+      }
+    },
+    setActiveChannel: (state, action) => {
+      return {
+        ...state,
+        activeChannel: action.payload
+      }
     }
   },
 })
 
-// Слайс генерирует действия, которые экспортируются отдельно
-// Действия генерируются автоматически из имен ключей редьюсеров
-export const { setChannels } = channelsSlice.actions
-
-// По умолчанию экспортируется редьюсер, сгенерированный слайсом
+export const { setChannels, setActiveChannel } = channelsSlice.actions
 export default channelsSlice.reducer
