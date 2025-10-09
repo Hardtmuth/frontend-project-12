@@ -31,6 +31,14 @@ const Chat = () => {
       }) : null
   }
 
+  const renderMessages = (chatId) => { // TODO rerender if add new message
+    return messages.length ?
+      messages.map(m => {
+        const { id, body, username, channelId } = m
+        return channelId === chatId ? <li key={id}><b>{username}</b>: {body}</li> : null
+      }) : null
+  }
+
   useEffect(() => {
       inputRef.current.focus()
     }, [])
@@ -68,9 +76,7 @@ const Chat = () => {
             <p className='counter'>{messageCounter}</p>
           </div>
           <div className='messagebox'>
-            <b>admin</b>: test message
-            <br />
-            <b>user</b>: retest
+            {renderMessages(channels.activeChannel.id)}
           </div>
           <Form onSubmit={formik.handleSubmit}>
              <InputGroup className="mb-3">

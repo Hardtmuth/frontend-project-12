@@ -33,3 +33,7 @@ form {
   padding-left: 25px;
   height: 400px;
 }
+
+.messagebox > li {
+  padding: 0 0 0 0;
+}
