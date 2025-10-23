@@ -2,12 +2,38 @@ import React, { useEffect, useRef } from 'react'
 import cn from 'classnames'
 import { Formik, useFormik } from 'formik'
 import { Container, Row, Col, Button, Form, InputGroup } from 'react-bootstrap'
-import 'bootstrap-icons/font/bootstrap-icons.css'
+import { PlusLg } from 'react-bootstrap-icons'
 import { useSelector, useDispatch } from 'react-redux'
 import './Chat.css'
 import { setActiveChannel } from '../slices/channelsSlice.js'
-import { sendMessage } from '../slices/messagesSlice.js'
+import { sendMessage, addMessage } from '../slices/messagesSlice.js'
+import { io } from 'socket.io-client'
+//import initializeSocket from '../slices/socket.js'
 
+
+/* const socket = io("http://localhost:5001", {
+  transports: ['websocket'],
+  withCredentials: true
+});
+
+const initSocet = () => {
+
+  const dis = useDispatch()
+  //const messages = useSelector(state => state.messages)
+
+  socket.on("connect", () => {
+    console.log("Соединение установлено");
+  });
+  socket.on("newMessage", (data) => {
+    // Диспечеризация действия для обновления состояния
+    console.log(data)
+    dis(addMessage(data));
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Соединение разорвано");
+  });
+}; */
 
 const Chat = () => {
   //console.log('State is: ', useSelector(state => state))
@@ -41,6 +67,14 @@ const Chat = () => {
 
   useEffect(() => {
       inputRef.current.focus()
+      const socket = io("http://localhost:5001", {
+        transports: ['websocket'],
+        withCredentials: true
+      })
+      socket.on("newMessage", (payload) => {
+        console.log(payload)
+        dispatch(addMessage(payload));
+      })
     }, [])
 
   const formik = useFormik({
@@ -51,6 +85,7 @@ const Chat = () => {
       const { token, username } = JSON.parse(localStorage.userId)
       const payload = { token, username, body: body.message, channelId: channels.activeChannel.id }
       dispatch(sendMessage(payload))
+      formik.values.message = ''
     },
   })
 
@@ -63,7 +98,7 @@ const Chat = () => {
           <div className='d-flex justify-content-between mt-4 mb-5 pb-3'>
             <b>Каналы</b>
           <Button className='p-0 btn btn-group-vertical'>
-            <i className="bi bi-plus-lg px-1"></i>
+            <PlusLg className='mx-1'/>
           </Button>
           </div>
           <ul>

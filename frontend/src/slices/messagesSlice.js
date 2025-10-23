@@ -20,12 +20,17 @@ const messagesSlice = createSlice({
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }).then((response) => {
+      })/* .then((response) => {
         console.log(response.data); // => { id: '1', body: 'new message', channelId: '1', username: 'admin }
-      })
+      }) */
     },
+    addMessage: (state, action) => {
+      const newState = action.payload
+      state.push(newState)
+    }
   },
+  
 })
 
-export const { getMessages, sendMessage } = messagesSlice.actions
+export const { getMessages, sendMessage, addMessage } = messagesSlice.actions
 export default messagesSlice.reducer
