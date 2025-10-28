@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
+import routes from '../routes'
 
 // Начальное значение
 const initialState = []
@@ -16,7 +17,7 @@ const messagesSlice = createSlice({
       const { body, channelId, username, token } = action.payload
       const message = { body, channelId, username }
 
-      axios.post('http://localhost:5002/api/v1/messages', message, { /* TODO rewrite PATH */
+      axios.post(routes.messagesPath(), message, { /* TODO rewrite PATH */
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -27,9 +28,8 @@ const messagesSlice = createSlice({
     addMessage: (state, action) => {
       const newState = action.payload
       state.push(newState)
-    }
+    },
   },
-  
 })
 
 export const { getMessages, sendMessage, addMessage } = messagesSlice.actions

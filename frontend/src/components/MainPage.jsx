@@ -20,7 +20,7 @@ const getAuthHeader = () => {
 
 const MainPage = () => {
   const channels = useSelector(state => state.channels.list)
-  const messages = useSelector(state => state.messages)
+  // const messages = useSelector(state => state.messages)
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -38,11 +38,11 @@ const MainPage = () => {
 
     fetchChanels()
     fetchMessages()
-  }, [])
+  }, [dispatch])
 
   return channels && (
     <Chat />
   )
-};
+}
 
 export default MainPage

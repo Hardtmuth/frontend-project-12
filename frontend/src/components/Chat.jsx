@@ -4,39 +4,19 @@ import { Formik, useFormik } from 'formik'
 import { Container, Row, Col, Button, Form, InputGroup } from 'react-bootstrap'
 import { PlusLg } from 'react-bootstrap-icons'
 import { useSelector, useDispatch } from 'react-redux'
-import './Chat.css'
+import '../styles/Chat.css'
 import { setActiveChannel } from '../slices/channelsSlice.js'
 import { sendMessage, addMessage } from '../slices/messagesSlice.js'
 import { io } from 'socket.io-client'
-//import initializeSocket from '../slices/socket.js'
+import { SERVER } from '../routes.js'
 
-
-/* const socket = io("http://localhost:5001", {
+const socket = io(SERVER, {
   transports: ['websocket'],
-  withCredentials: true
-});
-
-const initSocet = () => {
-
-  const dis = useDispatch()
-  //const messages = useSelector(state => state.messages)
-
-  socket.on("connect", () => {
-    console.log("Соединение установлено");
-  });
-  socket.on("newMessage", (data) => {
-    // Диспечеризация действия для обновления состояния
-    console.log(data)
-    dis(addMessage(data));
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Соединение разорвано");
-  });
-}; */
+  withCredentials: true,
+})
 
 const Chat = () => {
-  //console.log('State is: ', useSelector(state => state))
+  // console.log('State is: ', useSelector(state => state))
   const inputRef = useRef()
   const dispatch = useDispatch()
 
@@ -50,32 +30,44 @@ const Chat = () => {
   const messageCounter = `${messages.length} сообщений` /* TODO add i18n */
 
   const renderRoomsList = (rooms) => {
-    return rooms.length ?
-      rooms.map((room) => {
-        const liClasses = cn({ active: room.name === channels.activeChannel.name })
-        return <li className={liClasses} key={room.id} onClick={() => dispatch(setActiveChannel({ id: room.id, name: room.name }))}>{`# ${room.name}`}</li> // TODO add remove button on new channels
-      }) : null
+    return rooms.length
+      ? rooms.map((room) => {
+          const liClasses = cn({ active: room.name === channels.activeChannel.name })
+          return <li className={liClasses} key={room.id} onClick={() => dispatch(setActiveChannel({ id: room.id, name: room.name }))}>{`# ${room.name}`}</li> // TODO add remove button on new channels
+        })
+      : null
   }
 
   const renderMessages = (chatId) => { // TODO rerender if add new message
-    return messages.length ?
-      messages.map(m => {
-        const { id, body, username, channelId } = m
-        return channelId === chatId ? <li key={id}><b>{username}</b>: {body}</li> : null
-      }) : null
+    return messages.length
+      ? messages.map((m) => {
+          const { id, body, username, channelId } = m
+          return channelId === chatId
+            ? (
+                <li key={id}>
+                  <b>
+                    {username}
+                  </b>
+                  :
+                  {body}
+                </li>
+              )
+            : null
+        })
+      : null
   }
 
   useEffect(() => {
-      inputRef.current.focus()
-      const socket = io("http://localhost:5001", {
-        transports: ['websocket'],
-        withCredentials: true
-      })
-      socket.on("newMessage", (payload) => {
-        console.log(payload)
-        dispatch(addMessage(payload));
-      })
-    }, [])
+    inputRef.current.focus()
+    /* const socket = io(SERVER, {
+      transports: ['websocket'],
+      withCredentials: true,
+    }) */
+    socket.on('newMessage', (payload) => {
+      console.log(payload)
+      dispatch(addMessage(payload))
+    })
+  }, [dispatch])
 
   const formik = useFormik({
     initialValues: {
@@ -89,52 +81,51 @@ const Chat = () => {
     },
   })
 
-
   return (
     <Formik>
-    <Container className='h-100 my-4 rounded shadow' fluid='md'>
-      <Row>
-        <Col className='col-md-2 border-end bg-light'>
-          <div className='d-flex justify-content-between mt-4 mb-5 pb-3'>
-            <b>Каналы</b>
-          <Button className='p-0 btn btn-group-vertical'>
-            <PlusLg className='mx-1'/>
-          </Button>
-          </div>
-          <ul>
-            {renderRoomsList(channels.list)}
-          </ul>
-        </Col>
-        <Col className='h-100 g-0'>
-          <div className='h-100 bg-light mb-4 p-1 shadow-sm'>
-            <h6>{selectedRoom}</h6>
-            <p className='counter'>{messageCounter}</p>
-          </div>
-          <div className='messagebox'>
-            {renderMessages(channels.activeChannel.id)}
-          </div>
-          <Form onSubmit={formik.handleSubmit}>
-             <InputGroup className="mb-3">
-            <Form.Control
-              name="message"
-              type="text"
-              placeholder="write message"
-              onChange={formik.handleChange}
-              value={formik.values.message}
-              /* isInvalid={authFailed} */
-              required
-              ref={inputRef}
-            />
-            <Button id="button-addon2" onClick={formik.handleSubmit}>
-              Отправить
-            </Button>
-            </InputGroup>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+      <Container className="h-100 my-4 rounded shadow" fluid="md">
+        <Row>
+          <Col className="col-md-2 border-end bg-light">
+            <div className="d-flex justify-content-between mt-4 mb-5 pb-3">
+              <b>Каналы</b>
+              <Button className="p-0 btn btn-group-vertical">
+                <PlusLg className="mx-1" />
+              </Button>
+            </div>
+            <ul>
+              {renderRoomsList(channels.list)}
+            </ul>
+          </Col>
+          <Col className="h-100 g-0">
+            <div className="h-100 bg-light mb-4 p-1 shadow-sm">
+              <h6>{selectedRoom}</h6>
+              <p className="counter">{messageCounter}</p>
+            </div>
+            <div className="messagebox">
+              {renderMessages(channels.activeChannel.id)}
+            </div>
+            <Form onSubmit={formik.handleSubmit}>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  name="message"
+                  type="text"
+                  placeholder="write message"
+                  onChange={formik.handleChange}
+                  value={formik.values.message}
+                  /* isInvalid={authFailed} */
+                  required
+                  ref={inputRef}
+                />
+                <Button id="button-addon" onClick={formik.handleSubmit}>
+                  Отправить
+                </Button>
+              </InputGroup>
+            </Form>
+          </Col>
+        </Row>
+      </Container>
     </Formik>
   )
 }
 
-export default Chat;
+export default Chat

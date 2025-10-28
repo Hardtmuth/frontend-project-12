@@ -2,8 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 
 // Начальное значение
 const initialState = {
-  activeChannel: { id: 1, name: 'general'},
-  list: []
+  activeChannel: { id: 1, name: 'general' },
+  list: [],
 }
 
 const channelsSlice = createSlice({
@@ -13,15 +13,15 @@ const channelsSlice = createSlice({
     setChannels: (state, action) => {
       return {
         ...state,
-        list: [ ...action.payload ]
+        list: [...action.payload],
       }
     },
     setActiveChannel: (state, action) => {
       return {
         ...state,
-        activeChannel: action.payload
+        activeChannel: action.payload,
       }
-    }
+    },
   },
 })
 

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import MainPage from './components/MainPage'
-import AuthPage from './components/AuthPage'
-import ErrorPage from './components/ErrorPage'
-import AuthContext from './contexts/index.js';
-import useAuth from './hooks/index.js';
+import MainPage from './MainPage.jsx'
+import AuthPage from './AuthPage.jsx'
+import ErrorPage from './ErrorPage.jsx'
+import AuthContext from '../contexts/index.js'
+import useAuth from '../hooks/index.js'
 
 const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -39,19 +39,19 @@ const AuthButton = () => {
   return (
     auth.loggedIn
       ? <Button onClick={auth.logOut}>Log out</Button>
-      : <Button as={Link} to="/login" state={{ from: location }}>Log in</Button>
+      : <Button to="/login" state={{ from: location }}>Log in</Button>
   )
 }
 
 const App = () => {
   return (
     <AuthProvider>
-    <BrowserRouter>
-      <Routes>
-        {/* <Route path="/" element={<MainPage />} /> */}
-        <Route path="/login" element={<AuthPage />} />
-        <Route path="*" element={<ErrorPage />} />
-        <Route
+      <BrowserRouter>
+        <Routes>
+          {/* <Route path="/" element={<MainPage />} /> */}
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="*" element={<ErrorPage />} />
+          <Route
             path="/"
             element={(
               <PrivateRoute>
@@ -59,8 +59,8 @@ const App = () => {
               </PrivateRoute>
             )}
           />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   )
 }
