@@ -16,58 +16,67 @@ const socket = io(SERVER, {
 })
 
 const Chat = () => {
-  // console.log('State is: ', useSelector(state => state))
   const inputRef = useRef()
+  const messagesEndRef = useRef(null)
   const dispatch = useDispatch()
 
   const channels = useSelector(state => state.channels)
-  // console.log('Chat channels is: ', channels)
+  const activeChannelId = channels.activeChannel.id
 
   const messages = useSelector(state => state.messages)
-  // console.log('Chat messages is: ', messages)
+  const currentChannelMessages = messages.filter(m => m.channelId === activeChannelId)
+  const messageCounter = `${currentChannelMessages.length} сообщений` /* TODO add i18n */
+
 
   const selectedRoom = `#${channels.activeChannel.name}`
-  const messageCounter = `${messages.length} сообщений` /* TODO add i18n */
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const renderMessages = () => {
+    return currentChannelMessages.length > 0
+      ? currentChannelMessages.map((m) => {
+          const { id, body, username } = m
+          return (
+            <li key={id}>
+              <b>
+                {username}
+              </b>
+              :
+              {body}
+            </li>
+          )
+        })
+      : null
+  }
+
+  const setRoom = (room) => {
+    dispatch(setActiveChannel({ id: room.id, name: room.name }))
+  }
 
   const renderRoomsList = (rooms) => {
     return rooms.length
       ? rooms.map((room) => {
           const liClasses = cn({ active: room.name === channels.activeChannel.name })
-          return <li className={liClasses} key={room.id} onClick={() => dispatch(setActiveChannel({ id: room.id, name: room.name }))}>{`# ${room.name}`}</li> // TODO add remove button on new channels
-        })
-      : null
-  }
-
-  const renderMessages = (chatId) => { // TODO rerender if add new message
-    return messages.length
-      ? messages.map((m) => {
-          const { id, body, username, channelId } = m
-          return channelId === chatId
-            ? (
-                <li key={id}>
-                  <b>
-                    {username}
-                  </b>
-                  :
-                  {body}
-                </li>
-              )
-            : null
+          return <li className={liClasses} key={room.id} onClick={() => setRoom(room)}>{`# ${room.name}`}</li> // TODO add remove button on new channels
         })
       : null
   }
 
   useEffect(() => {
     inputRef.current.focus()
-    /* const socket = io(SERVER, {
-      transports: ['websocket'],
-      withCredentials: true,
-    }) */
-    socket.on('newMessage', (payload) => {
-      console.log(payload)
+    const handleNewMessage = (payload) => {
+      // console.log(payload)
       dispatch(addMessage(payload))
-    })
+    }
+    socket.on('newMessage', handleNewMessage)
+    return () => socket.off('newMessage', handleNewMessage)
   }, [dispatch])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   const formik = useFormik({
     initialValues: {
@@ -96,13 +105,14 @@ const Chat = () => {
               {renderRoomsList(channels.list)}
             </ul>
           </Col>
-          <Col className="h-100 g-0">
+          <Col className="h-100 g-0 mh-100">
             <div className="h-100 bg-light mb-4 p-1 shadow-sm">
               <h6>{selectedRoom}</h6>
               <p className="counter">{messageCounter}</p>
             </div>
-            <div className="messagebox">
-              {renderMessages(channels.activeChannel.id)}
+            <div className="messagebox" style={{ overflowY: 'auto' }}>
+              {renderMessages()}
+              <div ref={messagesEndRef} />
             </div>
             <Form onSubmit={formik.handleSubmit}>
               <InputGroup className="mb-3">

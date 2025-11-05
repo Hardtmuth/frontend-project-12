@@ -11,16 +11,13 @@ const channelsSlice = createSlice({
   initialState,
   reducers: {
     setChannels: (state, action) => {
-      return {
-        ...state,
-        list: [...action.payload],
+      state.list = action.payload
+      if (action.payload.length > 0) {
+        state.activeChannel = action.payload[0]
       }
     },
     setActiveChannel: (state, action) => {
-      return {
-        ...state,
-        activeChannel: action.payload,
-      }
+      state.activeChannel = action.payload
     },
   },
 })
