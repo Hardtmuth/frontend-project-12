@@ -29,7 +29,7 @@ export const addChannel = createAsyncThunk(
 const channelsAdapter = createEntityAdapter()
 
 const initialState = channelsAdapter.getInitialState({
-  activeChannel: { id: 1, name: 'general' },
+  activeChannel: { id: '1', name: 'general' },
   status: 'idle', // idle | loading | succeeded | failed
   error: null,
 })

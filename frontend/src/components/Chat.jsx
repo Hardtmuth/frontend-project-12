@@ -11,17 +11,15 @@ import { io } from 'socket.io-client'
 import { SERVER } from '../routes.js'
 
 import { fetchChannels, setActiveChannel, selectors } from '../slices/channelsSlice.js'
-// import { sendMessage, addMessage } from '../slices/messagesSlice.js'
+import { fetchMessages, addM, addMessage, messagesSelectors } from '../slices/messagesSlice.js'
 
-import { fetchMessages, addMessageEA, messagesSelectors } from '../slices/messagesSliceEA.js'
-
-/* const socket = io(SERVER, {
+const socket = io(SERVER, {
   transports: ['websocket'],
   withCredentials: true,
-}) */
+})
 
 const Chat = () => {
-  const inputRef = useRef()
+  const inputMessageRef = useRef()
   const messagesEndRef = useRef(null)
   const dispatch = useDispatch()
 
@@ -30,11 +28,8 @@ const Chat = () => {
   const selectedChannel = `#${activeChannel.name}`
 
   const messages = useSelector(messagesSelectors.selectEntities)
-  const currentChannelMessages = activeChannel
-    ? Object.values(messages).filter(m => m.channelId === activeChannel.id)
-    : []
-
-  const messageCounter = `${currentChannelMessages.length} сообщений` /* TODO add i18n */
+  const messagesStatus = useSelector(state => state.messages.status)
+  // const messageCounter = `${currentChannelMessages.length} сообщений` /* TODO add i18n */
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -54,8 +49,11 @@ const Chat = () => {
       : null
   }
 
-  const renderMessages = () => {
-    console.log('currentChannelMessages: ', currentChannelMessages)
+  const renderMessages = (messagesList) => {
+    const currentChannelMessages = activeChannel
+      ? Object.values(messagesList).filter(m => m.channelId === activeChannel.id)
+      : []
+
     return currentChannelMessages.length > 0
       ? currentChannelMessages.map((m) => {
           const { id, body, username } = m
@@ -65,21 +63,12 @@ const Chat = () => {
                 {username}
               </b>
               :
-              {body}
+              {` ${body}`}
             </li>
           )
         })
       : null
   }
-
-  /* useEffect(() => {
-    inputRef.current.focus()
-    const handleNewMessage = (payload) => {
-      dispatch(addMessage(payload))
-    }
-    socket.on('newMessage', handleNewMessage)
-    return () => socket.off('newMessage', handleNewMessage)
-  }, [dispatch]) */
 
   useEffect(() => {
     dispatch(fetchChannels())
@@ -90,19 +79,32 @@ const Chat = () => {
     scrollToBottom()
   }, [messages])
 
+  useEffect(() => {
+    if (inputMessageRef.current) { // FIX focus input message
+      inputMessageRef.current.focus()
+    }
+    const handleNewMessage = (payload) => {
+      dispatch(addM(payload))
+    }
+    socket.on('newMessage', handleNewMessage)
+    return () => socket.off('newMessage', handleNewMessage)
+  }, [dispatch])
+
   const formik = useFormik({
     initialValues: {
       message: '',
     },
     onSubmit: async (body) => {
       const { username } = JSON.parse(localStorage.userId)
-      // const payload = { token, username, body: body.message, channelId: activeChannel.id.toString() }
       const payload = { username, body: body.message, channelId: activeChannel.id.toString() }
-      // dispatch(sendMessage(payload))
-      dispatch(addMessageEA(payload))
+      dispatch(addMessage(payload))
       formik.values.message = ''
     },
   })
+
+  if (messagesStatus !== 'succeeded') {
+    return <div>Загружаем сообщения...</div>
+  }
 
   return (
     <Container className="h-100 my-4 rounded shadow" fluid="md">
@@ -121,10 +123,10 @@ const Chat = () => {
         <Col className="h-100 g-0 mh-100">
           <div className="h-100 bg-light mb-4 p-1 shadow-sm">
             <h6>{selectedChannel}</h6>
-            <p className="counter">{messageCounter}</p>
+            {/* <p className="counter">{messageCounter}</p> // FIX return message counter */}
           </div>
           <div className="messagebox" style={{ overflowY: 'auto' }}>
-            {renderMessages()}
+            {renderMessages(messages)}
             <div ref={messagesEndRef} />
           </div>
           <Form onSubmit={formik.handleSubmit}>
@@ -136,7 +138,7 @@ const Chat = () => {
                 onChange={formik.handleChange}
                 value={formik.values.message}
                 required
-                ref={inputRef}
+                ref={inputMessageRef}
               />
               <Button id="button-addon" onClick={formik.handleSubmit}>
                 Отправить

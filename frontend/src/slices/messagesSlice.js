@@ -1,36 +1,81 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
-import routes from '../routes'
+import routes from '../routes.js'
 
-// Начальное значение
-const initialState = []
+export const fetchMessages = createAsyncThunk(
+  'messages/fetchMessages',
+  async () => {
+    const token = JSON.parse(localStorage.getItem('userId')).token
+    if (!token) {
+      throw new Error('Токен не найден')
+    }
+    const response = await axios.get(routes.messagesPath(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  },
+)
+
+export const addMessage = createAsyncThunk(
+  'messages/addMessage',
+  async (newMessage) => {
+    const token = JSON.parse(localStorage.getItem('userId')).token
+    if (!token) {
+      throw new Error('Токен не найден')
+    }
+    const response = await axios.post(routes.messagesPath(), newMessage, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  },
+)
+
+const messagesAdapter = createEntityAdapter()
+
+const initialState = messagesAdapter.getInitialState({
+  status: 'idle', // idle | loading | succeeded | failed
+  error: null,
+})
 
 const messagesSlice = createSlice({
   name: 'messages',
   initialState,
   reducers: {
-    getMessages: (state, action) => {
-      const newState = action.payload
-      state.push(...newState)
-    },
-    sendMessage: (state, action) => {
-      const { body, channelId, username, token } = action.payload
-      const message = { body, channelId, username }
-
-      axios.post(routes.messagesPath(), message, { /* TODO rewrite PATH */
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })/* .then((response) => {
-        console.log(response.data); // => { id: '1', body: 'new message', channelId: '1', username: 'admin }
-      }) */
-    },
-    addMessage: (state, action) => {
-      const newState = action.payload
-      state.push(newState)
-    },
+    addM: messagesAdapter.addOne,
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchMessages.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(fetchMessages.fulfilled, (state, action) => {
+        messagesAdapter.setAll(state, action.payload)
+        state.status = 'succeeded'
+        state.error = null
+      })
+      .addCase(fetchMessages.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message || 'Unknown error'
+      })
+      .addCase(addMessage.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(addMessage.fulfilled, (state, action) => {
+        messagesAdapter.addOne(state, action.payload)
+        state.status = 'succeeded'
+        state.error = null
+      })
+      .addCase(addMessage.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message || 'Unknown error'
+      })
   },
 })
 
-export const { getMessages, sendMessage, addMessage } = messagesSlice.actions
+export const { addM } = messagesSlice.actions
+export const messagesSelectors = messagesAdapter.getSelectors(state => state.messages)
 export default messagesSlice.reducer

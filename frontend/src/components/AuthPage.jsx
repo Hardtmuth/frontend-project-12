@@ -11,13 +11,12 @@ const AuthPage = () => {
   const auth = useAuth()
   const [authFailed, setAuthFailed] = useState(false)
   const inputRef = useRef()
-  // const location = useLocation()
   const navigate = useNavigate()
   useEffect(() => {
     inputRef.current.focus()
   }, [])
 
-  const formik = useFormik({
+  const formik = useFormik({ // FIX don't auth if username is not admin
     initialValues: {
       username: '',
       password: '',
@@ -26,12 +25,9 @@ const AuthPage = () => {
       setAuthFailed(false)
 
       try {
-        console.log('values is: ', values)
         const res = await axios.post(routes.loginPath(), values)
-        console.log('res is: ', res)
         localStorage.setItem('userId', JSON.stringify(res.data))
         auth.logIn()
-        // const { from } = location.state
         navigate('/')
       }
       catch (err) {
