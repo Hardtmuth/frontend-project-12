@@ -1,26 +1,68 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit'
+import axios from 'axios'
+import routes from '../routes.js'
 
-// Начальное значение
-const initialState = {
+export const fetchChannels = createAsyncThunk(
+  'channels/fetchChannels',
+  async () => {
+    const token = JSON.parse(localStorage.getItem('userId')).token
+    if (!token) {
+      throw new Error('Токен не найден')
+    }
+    const response = await axios.get(routes.channelsPath(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  },
+)
+
+export const addChannel = createAsyncThunk(
+  'channels/addChanel',
+  async (newChannel) => {
+    const response = await axios.post(routes.channelsPath(), newChannel)
+    return response.data
+  },
+)
+
+const channelsAdapter = createEntityAdapter()
+
+const initialState = channelsAdapter.getInitialState({
   activeChannel: { id: 1, name: 'general' },
-  list: [],
-}
+  status: 'idle', // idle | loading | succeeded | failed
+  error: null,
+})
 
 const channelsSlice = createSlice({
   name: 'channels',
   initialState,
   reducers: {
-    setChannels: (state, action) => {
-      state.list = action.payload
-      if (action.payload.length > 0) {
-        state.activeChannel = action.payload[0]
-      }
+    addChanel: channelsAdapter.addOne,
+    removeChanel: (state, { payload }) => {
+      channelsAdapter.removeOne(state, payload)
     },
+    updateChannel: channelsAdapter.updateOne,
     setActiveChannel: (state, action) => {
       state.activeChannel = action.payload
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchChannels.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(fetchChannels.fulfilled, (state, action) => {
+        channelsAdapter.setAll(state, action.payload)
+        state.status = 'succeeded'
+      })
+      .addCase(fetchChannels.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message || 'Unknown error'
+      })
+  },
 })
 
-export const { setChannels, setActiveChannel } = channelsSlice.actions
+export const selectors = channelsAdapter.getSelectors(state => state.channels)
+export const { addChanel, removeChanel, updateChannel, setActiveChannel } = channelsSlice.actions
 export default channelsSlice.reducer
