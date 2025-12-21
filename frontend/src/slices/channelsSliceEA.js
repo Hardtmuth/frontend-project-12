@@ -1,31 +1,43 @@
 import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios';
+import axios from 'axios'
 
 export const fetchChannels = createAsyncThunk(
-  'channels/fetchChannels',
-  async (_, thunkAPI) => {
-    const response = await axios.get('/channels');
-    return response.data;
-  }
-);
+  'channelsEA/fetchChannels',
+  async () => {
+    const token = JSON.parse(localStorage.getItem('userId')).token
+
+    if (!token) {
+      throw new Error('Токен не найден')
+    }
+
+    const response = await axios.get('api/v1/channels', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    console.log('RESPONSE IS: ', response.data)
+    return response.data
+  },
+)
 
 export const addChannel = createAsyncThunk(
-  'channels/addChanels',
-  async (newChannel, thunkAPI) => {
-    const response = await axios.post('/channels', newChannel);
-    return response.data;
-  }
-);
+  'channelsEA/addChanel',
+  async (newChannel) => {
+    const response = await axios.post('/channels', newChannel)
+    return response.data
+  },
+)
 
 const channelsAdapter = createEntityAdapter()
 
 const initialState = channelsAdapter.getInitialState({
+  activeChannel: { id: 1, name: 'general' },
   status: 'idle', // idle | loading | succeeded | failed
   error: null,
 })
 
 const channelsSliceEA = createSlice({
-  name: 'channels',
+  name: 'channelsEA',
   initialState,
   reducers: {
     addChanel: channelsAdapter.addOne,
@@ -34,31 +46,31 @@ const channelsSliceEA = createSlice({
       channelsAdapter.removeOne(state, payload)
     },
     updateChannel: channelsAdapter.updateOne,
+    setActiveChannel: (state, action) => {
+      state.activeChannel = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchChannels.pending, (state) => {
-        state.status = 'loading';
+        state.status = 'loading'
       })
       .addCase(fetchChannels.fulfilled, (state, action) => {
-        channelsAdapter.setAll(state, action.payload);
-        state.status = 'succeeded';
+        channelsAdapter.setAll(state, action.payload)
+        state.status = 'succeeded'
       })
       .addCase(fetchChannels.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      })
-      .addCase(addChanels.fulfilled, (state, action) => {
-        channelsAdapter.addOne(state, action.payload);
+        state.status = 'failed'
+        state.error = action.error.message || 'Unknown error'
       })
   },
 })
 
-export const selectors = channelsAdapter.getSelectors(state => state.channels)
+export const selectors = channelsAdapter.getSelectors(state => state.channelsEA)
 
-export const { addChanel, addChanels, removeChanel, updateChannel } = channelsSlice.actions
-export const selectUsersStatus = (state) => state.users.status
-export const selectUsersError = (state) => state.users.error
+export const { addChanel, addChanels, removeChanel, updateChannel } = channelsSliceEA.actions
+// export const selectUsersStatus = (state) => state.users.status
+// export const selectUsersError = (state) => state.users.error
 
 export default channelsSliceEA.reducer
 

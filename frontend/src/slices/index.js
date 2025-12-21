@@ -7,6 +7,6 @@ export default configureStore({
   reducer: {
     channels: channelsSlice,
     messages: messagesSlice,
-    chanelsEA: chanelsSliceEA,
+    channelsEA: chanelsSliceEA,
   },
 })

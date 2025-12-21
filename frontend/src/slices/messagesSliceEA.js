@@ -19,5 +19,5 @@ const messagesSliceEA = createSlice({
 
 export const selectors = messagesAdapter.getSelectors(state => state.messages)
 
-export const { addMessage, addMessages, removeMessage, updateMessage } = messagesSlice.actions
+export const { addMessage, addMessages, removeMessage, updateMessage } = messagesSliceEA.actions
 export default messagesSliceEA.reducer
