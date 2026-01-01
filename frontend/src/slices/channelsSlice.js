@@ -18,10 +18,19 @@ export const fetchChannels = createAsyncThunk(
   },
 )
 
-export const addChannel = createAsyncThunk(
-  'channels/addChanel',
+export const addChannel = createAsyncThunk( // FIX Unauthorized
+  'channels/addChannel',
   async (newChannel) => {
-    const response = await axios.post(routes.channelsPath(), newChannel)
+    const token = JSON.parse(localStorage.getItem('userId')).token
+    console.log('TOKEN is: ', token)
+    if (!token) {
+      throw new Error('Токен не найден')
+    }
+    const response = await axios.get(routes.channelsPath(), newChannel, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     return response.data
   },
 )
@@ -60,6 +69,17 @@ const channelsSlice = createSlice({
         state.status = 'failed'
         state.error = action.error.message || 'Unknown error'
       })
+      /* .addCase(addChannel.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(addChannel.fulfilled, (state, action) => {
+        channelsAdapter.setAll(state, action.payload)
+        state.status = 'succeeded'
+      })
+      .addCase(addChannel.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message || 'Unknown error'
+      }) */
   },
 })
 
