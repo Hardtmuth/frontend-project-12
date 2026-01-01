@@ -26,7 +26,7 @@ export const addChannel = createAsyncThunk( // FIX Unauthorized
     if (!token) {
       throw new Error('Токен не найден')
     }
-    const response = await axios.get(routes.channelsPath(), newChannel, {
+    const response = await axios.post(routes.channelsPath(), newChannel, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
