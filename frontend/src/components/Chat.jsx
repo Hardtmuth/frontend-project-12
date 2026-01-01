@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { Container, Row, Col, Button, Form, InputGroup } from 'react-bootstrap'
@@ -12,6 +12,8 @@ import { SERVER } from '../routes.js'
 
 import { fetchChannels, setActiveChannel, selectors } from '../slices/channelsSlice.js'
 import { fetchMessages, addM, addMessage, messagesSelectors } from '../slices/messagesSlice.js'
+
+import AddChannelModal from './modals/AddChannelModal.jsx'
 
 const socket = io(SERVER, {
   transports: ['websocket'],
@@ -29,7 +31,11 @@ const Chat = () => {
 
   const messages = useSelector(messagesSelectors.selectEntities)
   const messagesStatus = useSelector(state => state.messages.status)
-  // const messageCounter = `${currentChannelMessages.length} сообщений` /* TODO add i18n */
+  const messageCounter = `${Object.keys(messages).length} сообщений` /* TODO add i18n */
+
+  const [showAddChannelModal, setShowAddChannelModal] = useState(false)
+  const handleClose = () => setShowAddChannelModal(false)
+  const handleShow = () => setShowAddChannelModal(true)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -112,9 +118,13 @@ const Chat = () => {
         <Col className="col-md-2 border-end bg-light">
           <div className="d-flex justify-content-between mt-4 mb-5 pb-3">
             <b>Каналы</b>
-            <Button className="p-0 btn btn-group-vertical">
+            <Button
+              className="p-0 btn btn-group-vertical"
+              onClick={handleShow}
+            >
               <PlusLg className="mx-1" />
             </Button>
+            <AddChannelModal show={showAddChannelModal} onHide={handleClose} />
           </div>
           <ul>
             {renderRoomsList(channels)}
@@ -123,7 +133,7 @@ const Chat = () => {
         <Col className="h-100 g-0 mh-100">
           <div className="h-100 bg-light mb-4 p-1 shadow-sm">
             <h6>{selectedChannel}</h6>
-            {/* <p className="counter">{messageCounter}</p> // FIX return message counter */}
+            <p className="counter">{messageCounter}</p>
           </div>
           <div className="messagebox" style={{ overflowY: 'auto' }}>
             {renderMessages(messages)}
