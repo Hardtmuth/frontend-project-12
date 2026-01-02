@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { Container, Row, Col, Button, Form, InputGroup } from 'react-bootstrap'
-import { PlusLg } from 'react-bootstrap-icons'
+import { Container, Row, Col, Button, Form, InputGroup, Dropdown } from 'react-bootstrap'
+import { PlusLg, List } from 'react-bootstrap-icons'
 import cn from 'classnames'
 import '../styles/Chat.css'
 
@@ -14,6 +14,7 @@ import { fetchChannels, setActiveChannel, selectors } from '../slices/channelsSl
 import { fetchMessages, addM, addMessage, messagesSelectors } from '../slices/messagesSlice.js'
 
 import AddChannelModal from './modals/AddChannelModal.jsx'
+import RenameChannelModal from './modals/RenameChannelModal.jsx'
 
 const socket = io(SERVER, {
   transports: ['websocket'],
@@ -27,22 +28,35 @@ const Chat = () => {
 
   const channels = useSelector(selectors.selectEntities)
   const activeChannel = useSelector(state => state.channels.activeChannel)
-  const selectedChannel = `#${activeChannel.name}`
+  const selectedChannel = `# ${activeChannel.name}`
 
   const messages = useSelector(messagesSelectors.selectEntities)
   const messagesStatus = useSelector(state => state.messages.status)
   const messageCounter = `${Object.keys(messages).length} сообщений` /* TODO add i18n */
 
   const [showAddChannelModal, setShowAddChannelModal] = useState(false)
-  const handleClose = () => setShowAddChannelModal(false)
+  const [showRenameChannelModal, setShowRenameChannelModal] = useState(false)
+
+  const handleClose = () => {
+    setShowAddChannelModal(false)
+    dispatch(fetchChannels())
+    console.log(activeChannel)
+  }
+  const handleRenameClose = () => {
+    setShowRenameChannelModal(false)
+    dispatch(fetchChannels())
+    console.log(activeChannel)
+  }
   const handleShow = () => setShowAddChannelModal(true)
+  const handleReanameShow = () => setShowRenameChannelModal(true)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const setRoom = (room) => {
-    dispatch(setActiveChannel({ id: room.id, name: room.name }))
+    const payload = { id: room.id, name: room.name }
+    dispatch(setActiveChannel(payload))
   }
 
   const renderRoomsList = (rooms) => {
@@ -50,7 +64,46 @@ const Chat = () => {
     return channelsList.length
       ? channelsList.map((room) => {
           const liClasses = cn({ active: room.name === activeChannel.name })
-          return <li className={liClasses} key={room.id} onClick={() => setRoom(room)}>{`# ${room.name}`}</li> // TODO add remove button on new channels
+          return room.removable
+            ? (
+                <Dropdown key={room.id} className="w-100">
+                  <li
+                    className={liClasses}
+                    onClick={() => setRoom(room)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {`# ${room.name}`}
+                  </li>
+                  <Dropdown.Toggle
+                    as={Button}
+                    variant="outline-dark"
+                    size="sm"
+                    className="p-1 channel-list"
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                    }}
+                  >
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item eventKey="1">Удалить</Dropdown.Item>
+                    <Dropdown.Item eventKey="2" onClick={handleReanameShow}>Переименовать</Dropdown.Item>
+                  </Dropdown.Menu>
+                  <RenameChannelModal show={showRenameChannelModal} onHide={handleRenameClose} channelId={room.id} />
+                </Dropdown>
+
+              )
+            : (
+                <li
+                  key={room.id}
+                  className={liClasses}
+                  onClick={() => setRoom(room)}
+                >
+                  {`# ${room.name}`}
+                </li>
+              )
         })
       : null
   }
@@ -89,6 +142,7 @@ const Chat = () => {
     if (inputMessageRef.current) { // FIX focus input message
       inputMessageRef.current.focus()
     }
+
     const handleNewMessage = (payload) => {
       dispatch(addM(payload))
     }
@@ -102,6 +156,7 @@ const Chat = () => {
     },
     onSubmit: async (body) => {
       const { username } = JSON.parse(localStorage.userId)
+      console.log('be4 send message active channel is: ', activeChannel)
       const payload = { username, body: body.message, channelId: activeChannel.id.toString() }
       dispatch(addMessage(payload))
       formik.values.message = ''

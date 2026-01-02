@@ -3,9 +3,9 @@ import { Button, Modal, Form } from 'react-bootstrap'
 import { Formik, useFormik } from 'formik'
 import { object, string } from 'yup'
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchChannels, addChannel, setActiveChannel, selectors } from '../../slices/channelsSlice.js'
+import { fetchChannels, updateChannel, setActiveChannel, selectors } from '../../slices/channelsSlice.js'
 
-const AddChannelModal = ({ show, onHide }) => {
+const RenameChannelModal = ({ channelId, show, onHide }) => {
   const [channelNameError, setchannelNameError] = useState('')
 
   const dispatch = useDispatch()
@@ -26,6 +26,7 @@ const AddChannelModal = ({ show, onHide }) => {
       name: '',
     },
     onSubmit: async (value) => {
+      console.log('channelId: ', channelId)
       const newChannelName = async () => {
         try {
           setchannelNameError('')
@@ -37,16 +38,16 @@ const AddChannelModal = ({ show, onHide }) => {
           setchannelNameError(err.message)
         }
       }
-      const res = await newChannelName()
-      console.log('RES is: ', res)
-      if (res) {
-        const newChannelData = await dispatch(addChannel(res))
-        dispatch(setActiveChannel(newChannelData.payload))
-        console.log('newChannelData', newChannelData.payload)
+      const editedChannel = await newChannelName()
+      console.log('RES is: ', editedChannel)
+      if (editedChannel) {
+        dispatch(updateChannel({ id: channelId, editedChannel }))
+        dispatch(setActiveChannel({ id: channelId, ...editedChannel }))
+        // console.log('newChannelData', newChannelData.payload)
         onHide()
       }
       else {
-        console.log('RES is ni valid: ', res)
+        console.log('RES is ni valid: ', editedChannel)
       }
     },
   })
@@ -63,7 +64,7 @@ const AddChannelModal = ({ show, onHide }) => {
       keyboard={false}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Добавить Канал</Modal.Title>
+        <Modal.Title>Переименовать Канал</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Formik>
@@ -71,7 +72,7 @@ const AddChannelModal = ({ show, onHide }) => {
             <Form.Control
               name="name"
               type="name"
-              placeholder="Введите имя для нового канала"
+              placeholder="Введите новое имя для канала"
               onChange={formik.handleChange}
               value={formik.values.name}
               isInvalid={channelNameError}
@@ -89,10 +90,10 @@ const AddChannelModal = ({ show, onHide }) => {
         <Button variant="secondary" onClick={onHide}>
           Закрыть
         </Button>
-        <Button variant="primary" onClick={formik.handleSubmit}>Добавить</Button>
+        <Button variant="primary" onClick={formik.handleSubmit}>Переименовать</Button>
       </Modal.Footer>
     </Modal>
   )
 }
 
-export default AddChannelModal
+export default RenameChannelModal

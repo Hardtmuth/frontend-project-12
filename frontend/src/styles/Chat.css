@@ -37,3 +37,8 @@ form {
 .messagebox > li {
   padding: 0 0 0 0;
 }
+
+.channel-list {
+  border: none;
+}
+

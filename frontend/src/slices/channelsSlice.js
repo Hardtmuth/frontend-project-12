@@ -18,7 +18,7 @@ export const fetchChannels = createAsyncThunk(
   },
 )
 
-export const addChannel = createAsyncThunk( // FIX Unauthorized
+export const addChannel = createAsyncThunk(
   'channels/addChannel',
   async (newChannel) => {
     const token = JSON.parse(localStorage.getItem('userId')).token
@@ -27,6 +27,24 @@ export const addChannel = createAsyncThunk( // FIX Unauthorized
       throw new Error('Токен не найден')
     }
     const response = await axios.post(routes.channelsPath(), newChannel, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  },
+)
+
+export const updateChannel = createAsyncThunk( // FIX dont rename
+  'channels/updateChannel',
+  async ({ id, editedChannel }) => {
+    const token = JSON.parse(localStorage.getItem('userId')).token
+    console.log('TOKEN is: ', token)
+    console.log('id: ', id, 'editedChannel: ', editedChannel)
+    if (!token) {
+      throw new Error('Токен не найден')
+    }
+    const response = await axios.patch(`${routes.channelsPath()}/${id}`, editedChannel, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -51,7 +69,7 @@ const channelsSlice = createSlice({
     removeChanel: (state, { payload }) => {
       channelsAdapter.removeOne(state, payload)
     },
-    updateChannel: channelsAdapter.updateOne,
+    updateChanel: channelsAdapter.updateOne,
     setActiveChannel: (state, action) => {
       state.activeChannel = action.payload
     },
@@ -84,5 +102,5 @@ const channelsSlice = createSlice({
 })
 
 export const selectors = channelsAdapter.getSelectors(state => state.channels)
-export const { addChanel, removeChanel, updateChannel, setActiveChannel } = channelsSlice.actions
+export const { addChanel, removeChanel, updateChanel, setActiveChannel } = channelsSlice.actions
 export default channelsSlice.reducer
