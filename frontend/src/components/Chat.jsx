@@ -15,6 +15,7 @@ import { fetchMessages, addM, addMessage, messagesSelectors } from '../slices/me
 
 import AddChannelModal from './modals/AddChannelModal.jsx'
 import RenameChannelModal from './modals/RenameChannelModal.jsx'
+import DeleteChannelModal from './modals/DeleteChannelModal.jsx'
 
 const socket = io(SERVER, {
   transports: ['websocket'],
@@ -36,6 +37,7 @@ const Chat = () => {
 
   const [showAddChannelModal, setShowAddChannelModal] = useState(false)
   const [showRenameChannelModal, setShowRenameChannelModal] = useState(false)
+  const [showDeleteChannelModal, setShowDeleteChannelModal] = useState(false)
 
   const handleClose = () => {
     setShowAddChannelModal(false)
@@ -47,8 +49,15 @@ const Chat = () => {
     dispatch(fetchChannels())
     console.log(activeChannel)
   }
+  const handleDeleteClose = () => {
+    setShowDeleteChannelModal(false)
+    dispatch(fetchChannels())
+    dispatch(setActiveChannel({ id: '1', name: 'genegal' }))
+    console.log(activeChannel)
+  }
   const handleShow = () => setShowAddChannelModal(true)
   const handleReanameShow = () => setShowRenameChannelModal(true)
+  const handleDeleteShow = () => setShowDeleteChannelModal(true)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -88,10 +97,11 @@ const Chat = () => {
                   >
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item eventKey="1">Удалить</Dropdown.Item>
+                    <Dropdown.Item eventKey="1" onClick={handleDeleteShow}>Удалить</Dropdown.Item>
                     <Dropdown.Item eventKey="2" onClick={handleReanameShow}>Переименовать</Dropdown.Item>
                   </Dropdown.Menu>
                   <RenameChannelModal show={showRenameChannelModal} onHide={handleRenameClose} channelId={room.id} />
+                  <DeleteChannelModal show={showDeleteChannelModal} onHide={handleDeleteClose} channelId={room.id} />
                 </Dropdown>
 
               )

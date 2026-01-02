@@ -35,7 +35,7 @@ export const addChannel = createAsyncThunk(
   },
 )
 
-export const updateChannel = createAsyncThunk( // FIX dont rename
+export const updateChannel = createAsyncThunk(
   'channels/updateChannel',
   async ({ id, editedChannel }) => {
     const token = JSON.parse(localStorage.getItem('userId')).token
@@ -45,6 +45,24 @@ export const updateChannel = createAsyncThunk( // FIX dont rename
       throw new Error('Токен не найден')
     }
     const response = await axios.patch(`${routes.channelsPath()}/${id}`, editedChannel, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  },
+)
+
+export const removeChannel = createAsyncThunk(
+  'channels/removeChannel',
+  async ({ id }) => {
+    const token = JSON.parse(localStorage.getItem('userId')).token
+    console.log('TOKEN is: ', token)
+    console.log('id: ', id)
+    if (!token) {
+      throw new Error('Токен не найден')
+    }
+    const response = await axios.delete(`${routes.channelsPath()}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
