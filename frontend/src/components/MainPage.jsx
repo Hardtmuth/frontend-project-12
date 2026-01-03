@@ -12,6 +12,7 @@ import { useFormik } from 'formik'
 import { io } from 'socket.io-client'
 import { useTranslation } from 'react-i18next'
 import { SERVER } from '../routes.js'
+import notify from '../notifications.js'
 
 import { fetchChannels, setActiveChannel, selectors } from '../slices/channelsSlice.js'
 import { fetchMessages, addM, addMessage, messagesSelectors } from '../slices/messagesSlice.js'
@@ -19,6 +20,8 @@ import { fetchMessages, addM, addMessage, messagesSelectors } from '../slices/me
 import AddChannelModal from './modals/AddChannelModal.jsx'
 import RenameChannelModal from './modals/RenameChannelModal.jsx'
 import DeleteChannelModal from './modals/DeleteChannelModal.jsx'
+
+import profanityFilter from '../profanityFilter.js'
 
 const socket = io(SERVER, {
   transports: ['websocket'],
@@ -39,7 +42,7 @@ const Chat = () => {
     : t('content.noChannelSelected')
 
   const messages = useSelector(messagesSelectors.selectEntities)
-  const messagesStatus = useSelector(state => state.messages.status)
+  // const messagesStatus = useSelector(state => state.messages.status)
 
   const count = Object.values(messages).filter(m => m.channelId === activeChannel.id).length
   const messageCounter = t('content.messages', { count })
@@ -47,6 +50,7 @@ const Chat = () => {
   const [showAddChannelModal, setShowAddChannelModal] = useState(false)
   const [showRenameChannelModal, setShowRenameChannelModal] = useState(false)
   const [showDeleteChannelModal, setShowDeleteChannelModal] = useState(false)
+  const [isSendBtnDisabled, setSendBtnDisabled] = useState(false)
 
   const handleClose = () => {
     setShowAddChannelModal(false)
@@ -174,16 +178,31 @@ const Chat = () => {
     },
     onSubmit: async (body) => {
       const { username } = JSON.parse(localStorage.userId)
-      console.log('be4 send message active channel is: ', activeChannel)
-      const payload = { username, body: body.message, channelId: activeChannel.id.toString() }
-      dispatch(addMessage(payload))
-      formik.values.message = ''
+      // console.log('be4 send message active channel is: ', activeChannel)
+      const filteredMessage = profanityFilter.clean(body.message)
+      const payload = { username, body: filteredMessage, channelId: activeChannel.id.toString() }
+      setSendBtnDisabled(true)
+      try {
+        const reqAddMessage = await dispatch(addMessage(payload))
+        if (!reqAddMessage || !reqAddMessage.payload) {
+          notify.networkError()
+          setTimeout(() => setSendBtnDisabled(false), 5000)
+          return
+        }
+        formik.resetForm()
+        setSendBtnDisabled(false)
+      }
+      catch (err) {
+        console.log('addMessage Error: ', err.message)
+        notify.networkError()
+        return
+      }
     },
   })
 
-  if (messagesStatus !== 'succeeded') {
+  /* if (messagesStatus !== 'succeeded') {
     return <Loading />
-  }
+  } */
 
   return (
     <Container className="h-100 my-4 rounded shadow" fluid="md">
@@ -223,7 +242,7 @@ const Chat = () => {
                 required
                 ref={inputMessageRef}
               />
-              <Button id="button-addon" onClick={formik.handleSubmit}>
+              <Button id="button-addon" onClick={formik.handleSubmit} disabled={isSendBtnDisabled}>
                 {t('buttons.send')}
               </Button>
               {/* <Button onClick={notify.test}>

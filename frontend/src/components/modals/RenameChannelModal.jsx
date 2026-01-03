@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 
 import { fetchChannels, updateChannel, setActiveChannel, selectors } from '../../slices/channelsSlice.js'
 import notify from '../../notifications.js'
+import profanityFilter from '../../profanityFilter.js'
 
 const RenameChannelModal = ({ channelId, show, onHide }) => {
   const [channelNameError, setchannelNameError] = useState('')
@@ -24,7 +25,10 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       .max(20, `${t('errors.longName')}`)
       .notOneOf(existingChannels, `${t('errors.channelExist')}`)
       .trim()
-      .required(),
+      .required()
+      .test('profanity-check', `${t('errors.profinity')}`, (value) => {
+        return !profanityFilter.check(value || '')
+      }),
   })
 
   const formik = useFormik({
