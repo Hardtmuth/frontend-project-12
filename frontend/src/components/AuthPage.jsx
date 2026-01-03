@@ -12,6 +12,7 @@ const AuthPage = () => {
   const [authFailed, setAuthFailed] = useState(false)
   const inputRef = useRef()
   const navigate = useNavigate()
+
   useEffect(() => {
     inputRef.current.focus()
   }, [])

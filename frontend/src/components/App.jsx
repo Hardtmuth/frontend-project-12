@@ -7,6 +7,7 @@ import ErrorPage from './ErrorPage.jsx'
 import SignupPage from './SignupPage.jsx'
 import AuthContext from '../contexts/index.js'
 import useAuth from '../hooks/index.js'
+import Header from './Header.jsx'
 
 const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -48,6 +49,7 @@ const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Header />
         <Routes>
           {/* <Route path="/" element={<MainPage />} /> */}
           <Route path="/login" element={<AuthPage />} />
