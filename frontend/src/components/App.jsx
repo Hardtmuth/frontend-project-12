@@ -9,6 +9,18 @@ import AuthContext from '../contexts/index.js'
 import useAuth from '../hooks/index.js'
 import Header from './Header.jsx'
 
+import { Provider, ErrorBoundary } from '@rollbar/react'
+
+const rollbarConfig = {
+  accessToken: import.meta.env.VITE_ACCESS_TOKEN,
+  environment: import.meta.env.VITE_ENVIROMENT,
+}
+
+/* function TestError() {
+  const a = null
+  return a.hello()
+} */
+
 const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false)
 
@@ -36,25 +48,30 @@ const PrivateRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Header />
-        <Routes>
-          {/* <Route path="/" element={<MainPage />} /> */}
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="*" element={<ErrorPage />} />
-          <Route
-            path="/"
-            element={(
-              <PrivateRoute>
-                <MainPage />
-              </PrivateRoute>
-            )}
-          />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <Provider config={rollbarConfig}>
+      <ErrorBoundary>
+        <AuthProvider>
+          <BrowserRouter>
+            <Header />
+            <Routes>
+              {/* <Route path="/" element={<MainPage />} /> */}
+              <Route path="/login" element={<AuthPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="*" element={<ErrorPage />} />
+              <Route
+                path="/"
+                element={(
+                  <PrivateRoute>
+                    <MainPage />
+                  </PrivateRoute>
+                )}
+              />
+            </Routes>
+            {/* <TestError /> */}
+          </BrowserRouter>
+        </AuthProvider>
+      </ErrorBoundary>
+    </Provider>
   )
 }
 

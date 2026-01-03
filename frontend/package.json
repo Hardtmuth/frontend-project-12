@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",
+    "@rollbar/react": "^1.0.0",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
     "classnames": "^2.5.1",
@@ -26,6 +27,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.1",
     "react-toastify": "^11.0.5",
+    "rollbar": "^2.26.5",
     "socket.io-client": "^4.8.1",
     "yup": "^1.7.1"
   },
