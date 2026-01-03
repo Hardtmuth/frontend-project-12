@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-
+import { ToastContainer, Bounce } from 'react-toastify'
 import { Container, Row, Col, Button, Form, InputGroup, Dropdown } from 'react-bootstrap'
 import { PlusLg } from 'react-bootstrap-icons'
 import cn from 'classnames'
@@ -32,8 +32,11 @@ const Chat = () => {
   const { t } = useTranslation()
 
   const channels = useSelector(selectors.selectEntities)
-  const activeChannel = useSelector(state => state.channels.activeChannel)
-  const selectedChannel = `# ${activeChannel.name}`
+  const activeChannel = useSelector(state => state.channels.activeChannel || { id: '1', name: 'general' })
+  // const selectedChannel = `# ${activeChannel.name}`
+  const selectedChannel = activeChannel
+    ? `# ${activeChannel.name}`
+    : t('content.noChannelSelected')
 
   const messages = useSelector(messagesSelectors.selectEntities)
   const messagesStatus = useSelector(state => state.messages.status)
@@ -48,7 +51,6 @@ const Chat = () => {
   const handleClose = () => {
     setShowAddChannelModal(false)
     dispatch(fetchChannels())
-    console.log(activeChannel)
   }
   const handleRenameClose = () => {
     setShowRenameChannelModal(false)
@@ -224,10 +226,26 @@ const Chat = () => {
               <Button id="button-addon" onClick={formik.handleSubmit}>
                 {t('buttons.send')}
               </Button>
+              {/* <Button onClick={notify.test}>
+                Toast test
+              </Button> */}
             </InputGroup>
           </Form>
         </Col>
       </Row>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Bounce}
+      />
     </Container>
   )
 }

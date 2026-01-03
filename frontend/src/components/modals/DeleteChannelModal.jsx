@@ -4,14 +4,27 @@ import { useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 
 import { removeChannel } from '../../slices/channelsSlice.js'
+import notify from '../../notifications.js'
 
 const RenameChannelModal = ({ channelId, show, onHide }) => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
 
-  const handleDelete = (id) => {
-    dispatch(removeChannel({ id }))
-    onHide()
+  const handleDelete = async (id) => {
+    try {
+      const req = await dispatch(removeChannel({ id }))
+      if (!req || !req.payload) {
+        notify.networkError()
+        return
+      }
+      notify.delete()
+      onHide()
+    }
+    catch (err) {
+      console.log(err.message)
+      notify.networkError()
+      return
+    }
   }
 
   return (

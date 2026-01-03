@@ -36,11 +36,17 @@ export default {
     channels: 'Каналы',
     loading: 'Идет загрузка сообщений...',
     delete: 'Вы уверены что хотите удалить канал и все сообщения в нем?',
+    noChannelSelected: 'Нет выбранного канала',
     messages_zero: 'Нет сообщений',
     messages_one: '{{count}} сообщение',
     messages_few: '{{count}} сообщения',
     messages_many: '{{count}} сообщений',
     messages_other: '{{count}} сообщений',
+  },
+  notifications: {
+    add: 'Канал успешно добавлен',
+    rename: 'Канал успешно переименован',
+    delete: 'Канал успешно удален',
   },
   errors: {
     auth: 'Неверные имя пользователя или пароль',
@@ -49,5 +55,6 @@ export default {
     shortName: 'Имя должно содержать более 3 символов',
     longName: 'Имя должно содержать не более 20 символов',
     channelExist: 'Канал с таким именем уже существует',
+    network: 'Ошибка загрузки данных с сервера',
   },
 }

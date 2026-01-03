@@ -7,6 +7,7 @@ import { object, string } from 'yup'
 import { useTranslation } from 'react-i18next'
 
 import { fetchChannels, updateChannel, setActiveChannel, selectors } from '../../slices/channelsSlice.js'
+import notify from '../../notifications.js'
 
 const RenameChannelModal = ({ channelId, show, onHide }) => {
   const [channelNameError, setchannelNameError] = useState('')
@@ -46,10 +47,27 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       const editedChannel = await newChannelName()
       console.log('RES is: ', editedChannel)
       if (editedChannel) {
-        dispatch(updateChannel({ id: channelId, editedChannel }))
-        dispatch(setActiveChannel({ id: channelId, ...editedChannel }))
+        try {
+          const newChannelData = await dispatch(updateChannel({ id: channelId, editedChannel }))
+          console.log(newChannelData)
+          if (!newChannelData || !newChannelData.payload) {
+            notify.networkError()
+            return
+          }
+          dispatch(setActiveChannel({ id: channelId, ...editedChannel }))
+          // console.log('newChannelData', newChannelData.payload)
+          notify.rename()
+          onHide()
+        }
+        catch (err) {
+          console.log(err.message)
+          notify.networkError()
+          return
+        }
+        // dispatch(setActiveChannel({ id: channelId, ...editedChannel }))
         // console.log('newChannelData', newChannelData.payload)
-        onHide()
+        // notify.rename()
+        // onHide()
       }
       else {
         console.log('RES is ni valid: ', editedChannel)

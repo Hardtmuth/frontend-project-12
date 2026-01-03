@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Formik, useFormik } from 'formik'
 import { Form, Button, Container, Card } from 'react-bootstrap'
+import { ToastContainer, Bounce } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import '../styles/AuthPage.css'
 import useAuth from '../hooks/index.js'
 import routes from '../routes.js'
+import notify from '../notifications.js'
 
 const AuthPage = () => {
   const auth = useAuth()
@@ -43,6 +45,7 @@ const AuthPage = () => {
           inputRef.current.select()
           return
         }
+        notify.networkError()
         throw err
       }
     },
@@ -94,6 +97,19 @@ const AuthPage = () => {
             </span>
           </Card.Footer>
         </Card>
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          transition={Bounce}
+        />
       </Container>
     </Formik>
   )

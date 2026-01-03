@@ -7,9 +7,10 @@ import { object, string } from 'yup'
 import { useTranslation } from 'react-i18next'
 
 import { fetchChannels, addChannel, setActiveChannel, selectors } from '../../slices/channelsSlice.js'
+import notify from '../../notifications.js'
 
 const AddChannelModal = ({ show, onHide }) => {
-  const [channelNameError, setchannelNameError] = useState('')
+  const [channelNameError, setChannelNameError] = useState('')
   // const inputChannelName = useRef()
 
   const dispatch = useDispatch()
@@ -38,22 +39,34 @@ const AddChannelModal = ({ show, onHide }) => {
     onSubmit: async (value) => {
       const newChannelName = async () => {
         try {
-          setchannelNameError('')
+          setChannelNameError('')
           const result = await channelSchema.validate(value)
           return result
         }
         catch (err) {
           console.log(err.message)
-          setchannelNameError(err.message)
+          setChannelNameError(err.message)
         }
       }
       const res = await newChannelName()
       console.log('RES is: ', res)
       if (res) {
-        const newChannelData = await dispatch(addChannel(res))
-        dispatch(setActiveChannel(newChannelData.payload))
-        console.log('newChannelData', newChannelData.payload)
-        onHide()
+        try {
+          const newChannelData = await dispatch(addChannel(res))
+          if (!newChannelData || !newChannelData.payload) {
+            notify.networkError()
+            return
+          }
+          dispatch(setActiveChannel(newChannelData.payload))
+          console.log('newChannelData', newChannelData.payload)
+          notify.add()
+          onHide()
+        }
+        catch (err) {
+          console.log(err.message)
+          notify.networkError()
+          return
+        }
       }
       else {
         console.log('RES is ni valid: ', res)
