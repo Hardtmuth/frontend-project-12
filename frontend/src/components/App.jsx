@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import MainPage from './MainPage.jsx'
 import AuthPage from './AuthPage.jsx'
 import ErrorPage from './ErrorPage.jsx'
+import SignupPage from './SignupPage.jsx'
 import AuthContext from '../contexts/index.js'
 import useAuth from '../hooks/index.js'
 
@@ -50,6 +51,7 @@ const App = () => {
         <Routes>
           {/* <Route path="/" element={<MainPage />} /> */}
           <Route path="/login" element={<AuthPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="*" element={<ErrorPage />} />
           <Route
             path="/"
