@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import { Button, Modal, Form } from 'react-bootstrap'
+import { useSelector, useDispatch } from 'react-redux'
+
 import { Formik, useFormik } from 'formik'
 import { object, string } from 'yup'
-import { useSelector, useDispatch } from 'react-redux'
+import { useTranslation } from 'react-i18next'
+
 import { fetchChannels, updateChannel, setActiveChannel, selectors } from '../../slices/channelsSlice.js'
 
 const RenameChannelModal = ({ channelId, show, onHide }) => {
   const [channelNameError, setchannelNameError] = useState('')
 
   const dispatch = useDispatch()
+  const { t } = useTranslation()
+
   const channels = useSelector(selectors.selectEntities)
   const existingChannels = Object.values(channels).map(c => c.name)
 
   const channelSchema = object({
     name: string()
-      .min(3)
-      .max(20)
-      .notOneOf(existingChannels)
+      .min(3, `${t('errors.shortName')}`)
+      .max(20, `${t('errors.longName')}`)
+      .notOneOf(existingChannels, `${t('errors.channelExist')}`)
       .trim()
       .required(),
   })
@@ -64,7 +69,7 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       keyboard={false}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Переименовать Канал</Modal.Title>
+        <Modal.Title>{t('headers.rename')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Formik>
@@ -72,7 +77,7 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
             <Form.Control
               name="name"
               type="name"
-              placeholder="Введите новое имя для канала"
+              placeholder={t('placeholders.rename')}
               onChange={formik.handleChange}
               value={formik.values.name}
               isInvalid={channelNameError}
@@ -80,17 +85,18 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
               // ref={inputRef}
             />
             <Form.Control.Feedback type="invalid">
-              { /* TODO Error messages change to i18n */}
-              {channelNameError || 'This field is required.'}
+              {channelNameError}
             </Form.Control.Feedback>
           </Form>
         </Formik>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
-          Закрыть
+          {t('buttons.close')}
         </Button>
-        <Button variant="primary" onClick={formik.handleSubmit}>Переименовать</Button>
+        <Button variant="primary" onClick={formik.handleSubmit}>
+          {t('buttons.rename')}
+        </Button>
       </Modal.Footer>
     </Modal>
   )

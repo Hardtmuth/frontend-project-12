@@ -34,17 +34,6 @@ const PrivateRoute = ({ children }) => {
   )
 }
 
-const AuthButton = () => {
-  const auth = useAuth()
-  const location = useLocation()
-
-  return (
-    auth.loggedIn
-      ? <Button onClick={auth.logOut}>Log out</Button>
-      : <Button to="/login" state={{ from: location }}>Log in</Button>
-  )
-}
-
 const App = () => {
   return (
     <AuthProvider>

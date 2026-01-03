@@ -1,10 +1,13 @@
 import React from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
+import { useTranslation } from 'react-i18next'
+
 import { removeChannel } from '../../slices/channelsSlice.js'
 
 const RenameChannelModal = ({ channelId, show, onHide }) => {
   const dispatch = useDispatch()
+  const { t } = useTranslation()
 
   const handleDelete = (id) => {
     dispatch(removeChannel({ id }))
@@ -19,16 +22,16 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       keyboard={false}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Удалить Канал</Modal.Title>
+        <Modal.Title>{t('headers.delete')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        Вы уверены что хотите удалить канал и все сообщения в нем?
+        {t('content.delete')}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
-          Отменить
+          {t('buttons.cancel')}
         </Button>
-        <Button variant="danger" onClick={() => handleDelete(channelId)}>Удалить</Button>
+        <Button variant="danger" onClick={() => handleDelete(channelId)}>{t('buttons.delete')}</Button>
       </Modal.Footer>
     </Modal>
   )

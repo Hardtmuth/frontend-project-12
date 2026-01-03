@@ -4,6 +4,8 @@ import { Form, Button, Container, Card } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import { object, string, ref } from 'yup'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
+
 import routes from '../routes.js'
 import useAuth from '../hooks/index.js'
 
@@ -11,6 +13,8 @@ const SignupPage = () => {
   const navigate = useNavigate()
   const inputRef = useRef()
   const auth = useAuth()
+  const { t } = useTranslation()
+
   const [signupFailedUsername, setSignupFailedUsername] = useState(false)
   const [signupFailedPassword, setSignupFailedPassword] = useState(false)
   const [signupFailedConfirm, setSignupFailedConfirm] = useState(false)
@@ -66,7 +70,7 @@ const SignupPage = () => {
         catch (err) {
           formik.setSubmitting(false)
           if (err.isAxiosError && (err.response.status === 401 || err.response.status === 409)) {
-            setSignupFailedUsername('Пользователь с таким именем уже существует')
+            setSignupFailedUsername(t('errors.exist'))
             setSignupBtnDisabled(false)
             inputRef.current.select()
             return
@@ -82,7 +86,7 @@ const SignupPage = () => {
     <Formik>
       <Container max-width="300px">
         <Card>
-          <Card.Header className="fw-bold fs-5">Регистрация</Card.Header>
+          <Card.Header className="fw-bold fs-5">{t('headers.signup')}</Card.Header>
           <Card.Body>
             <Form onSubmit={formik.handleSubmit}>
               <Form.Group className="mb-3" controlId="usermane">
@@ -90,7 +94,7 @@ const SignupPage = () => {
                 <Form.Control
                   name="username"
                   type="name"
-                  placeholder="Имя пользователя"
+                  placeholder={t('placeholders.username')}
                   onChange={formik.handleChange}
                   value={formik.values.username}
                   isInvalid={signupFailedUsername}
@@ -98,7 +102,7 @@ const SignupPage = () => {
                   ref={inputRef}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {signupFailedUsername || 'This field is required.'}
+                  {signupFailedUsername}
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3" controlId="Password">
@@ -106,7 +110,7 @@ const SignupPage = () => {
                 <Form.Control
                   name="password"
                   type="password"
-                  placeholder="Пароль"
+                  placeholder={t('placeholders.password')}
                   onChange={formik.handleChange}
                   value={formik.values.password}
                   autoComplete="current-password"
@@ -114,7 +118,7 @@ const SignupPage = () => {
                   required
                 />
                 <Form.Control.Feedback type="invalid">
-                  {signupFailedPassword || 'This field is required.'}
+                  {signupFailedPassword}
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3" controlId="Confirm">
@@ -122,7 +126,7 @@ const SignupPage = () => {
                 <Form.Control
                   name="confirm"
                   type="password"
-                  placeholder="Подтвердите пароль"
+                  placeholder={t('placeholders.confirm')}
                   onChange={formik.handleChange}
                   value={formik.values.confirm}
                   autoComplete="current-password"
@@ -130,14 +134,14 @@ const SignupPage = () => {
                   required
                 />
                 <Form.Control.Feedback type="invalid">
-                  {signupFailedConfirm || 'This field is required.'}
+                  {signupFailedConfirm}
                 </Form.Control.Feedback>
               </Form.Group>
               <Button variant="primary" type="submit" className="float-end ms-2" disabled={isSignupBtnDisabled}>
-                Зарегистрироваться
+                {t('buttons.signup')}
               </Button>
               <Button variant="secondary" type="submit" className="float-end" onClick={() => navigate(-1)} disabled={isSignupBtnDisabled}>
-                Назад
+                {t('buttons.back')}
               </Button>
             </Form>
           </Card.Body>

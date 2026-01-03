@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Formik, useFormik } from 'formik'
 import { Form, Button, Container, Card } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import '../styles/AuthPage.css'
 import useAuth from '../hooks/index.js'
@@ -9,9 +10,12 @@ import routes from '../routes.js'
 
 const AuthPage = () => {
   const auth = useAuth()
-  const [authFailed, setAuthFailed] = useState(false)
   const inputRef = useRef()
   const navigate = useNavigate()
+  const { t } = useTranslation()
+
+  const [authFailed, setAuthFailed] = useState(false)
+  const [isLoginBtnDisabled, setLoginBtnDisables] = useState(false)
 
   useEffect(() => {
     inputRef.current.focus()
@@ -24,7 +28,7 @@ const AuthPage = () => {
     },
     onSubmit: async (values) => {
       setAuthFailed(false)
-
+      setLoginBtnDisables(true)
       try {
         const res = await axios.post(routes.loginPath(), values)
         localStorage.setItem('userId', JSON.stringify(res.data))
@@ -35,6 +39,7 @@ const AuthPage = () => {
         formik.setSubmitting(false)
         if (err.isAxiosError && err.response.status === 401) {
           setAuthFailed(true)
+          setLoginBtnDisables(false)
           inputRef.current.select()
           return
         }
@@ -47,7 +52,7 @@ const AuthPage = () => {
     <Formik>
       <Container max-width="300px">
         <Card>
-          <Card.Header className="fw-bold fs-5">Hexlet Chat</Card.Header>
+          <Card.Header className="fw-bold fs-5">{t('headers.brand')}</Card.Header>
           <Card.Body>
             <Form onSubmit={formik.handleSubmit}>
               <Form.Group className="mb-3" controlId="usermane">
@@ -55,7 +60,7 @@ const AuthPage = () => {
                 <Form.Control
                   name="username"
                   type="name"
-                  placeholder="Имя пользователя"
+                  placeholder={t('placeholders.username')}
                   onChange={formik.handleChange}
                   value={formik.values.username}
                   isInvalid={authFailed}
@@ -68,24 +73,24 @@ const AuthPage = () => {
                 <Form.Control
                   name="password"
                   type="password"
-                  placeholder="Пароль"
+                  placeholder={t('placeholders.password')}
                   onChange={formik.handleChange}
                   value={formik.values.password}
                   autoComplete="current-password"
                   isInvalid={authFailed}
                   required
                 />
-                <Form.Control.Feedback type="invalid">the username or password is incorrect</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{t('errors.auth')}</Form.Control.Feedback>
               </Form.Group>
-              <Button variant="primary" type="submit" className="float-end">
-                Войти
+              <Button variant="primary" type="submit" className="float-end" disabled={isLoginBtnDisabled}>
+                {t('buttons.login')}
               </Button>
             </Form>
           </Card.Body>
           <Card.Footer>
             <span className="d-flex justify-content-center">
-              Нет аккаунта?
-              <a href="/signup">Регистрация</a>
+              {t('footer.text')}
+              <a href="/signup">{t('footer.href')}</a>
             </span>
           </Card.Footer>
         </Card>

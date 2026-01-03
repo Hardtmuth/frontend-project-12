@@ -1,22 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import { Button, Modal, Form } from 'react-bootstrap'
+import { useSelector, useDispatch } from 'react-redux'
+
 import { Formik, useFormik } from 'formik'
 import { object, string } from 'yup'
-import { useSelector, useDispatch } from 'react-redux'
+import { useTranslation } from 'react-i18next'
+
 import { fetchChannels, addChannel, setActiveChannel, selectors } from '../../slices/channelsSlice.js'
 
 const AddChannelModal = ({ show, onHide }) => {
   const [channelNameError, setchannelNameError] = useState('')
+  // const inputChannelName = useRef()
 
   const dispatch = useDispatch()
+  const { t } = useTranslation()
+
   const channels = useSelector(selectors.selectEntities)
   const existingChannels = Object.values(channels).map(c => c.name)
 
+  /* useEffect(() => {
+    inputChannelName.current.focus()
+  }, []) */
+
   const channelSchema = object({
     name: string()
-      .min(3)
-      .max(20)
-      .notOneOf(existingChannels)
+      .min(3, `${t('errors.shortName')}`)
+      .max(20, `${t('errors.longName')}`)
+      .notOneOf(existingChannels, `${t('errors.channelExist')}`)
       .trim()
       .required(),
   })
@@ -63,7 +73,7 @@ const AddChannelModal = ({ show, onHide }) => {
       keyboard={false}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Добавить Канал</Modal.Title>
+        <Modal.Title>{t('headers.add')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Formik>
@@ -71,25 +81,24 @@ const AddChannelModal = ({ show, onHide }) => {
             <Form.Control
               name="name"
               type="name"
-              placeholder="Введите имя для нового канала"
+              placeholder={t('placeholders.add')}
               onChange={formik.handleChange}
               value={formik.values.name}
               isInvalid={channelNameError}
               required
-              // ref={inputRef}
+              // ref={inputChannelName}
             />
             <Form.Control.Feedback type="invalid">
-              { /* TODO Error messages change to i18n */}
-              {channelNameError || 'This field is required.'}
+              {channelNameError}
             </Form.Control.Feedback>
           </Form>
         </Formik>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
-          Закрыть
+          {t('buttons.close')}
         </Button>
-        <Button variant="primary" onClick={formik.handleSubmit}>Добавить</Button>
+        <Button variant="primary" onClick={formik.handleSubmit}>{t('buttons.add')}</Button>
       </Modal.Footer>
     </Modal>
   )
