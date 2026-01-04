@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Formik, useFormik } from 'formik'
 import { Form, Button, Container, Card } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
@@ -15,30 +15,11 @@ const SignupPage = () => {
   const auth = useAuth()
   const { t } = useTranslation()
 
-  const [signupFailedUsername, setSignupFailedUsername] = useState(false)
-  const [signupFailedPassword, setSignupFailedPassword] = useState(false)
-  const [signupFailedConfirm, setSignupFailedConfirm] = useState(false)
-  const [isSignupBtnDisabled, setSignupBtnDisabled] = useState(false)
+  // const [isSignupBtnDisabled, setSignupBtnDisabled] = useState(false)
 
   useEffect(() => {
     inputRef.current.focus()
   }, [])
-
-  const channelSchema = object({
-    username: string()
-      .min(3, `${t('errors.shortName')}`)
-      .max(20, `${t('errors.longName')}`)
-      .trim()
-      .required(),
-    password: string()
-      .min(6, `${t('errors.shortName')}`)
-      .trim()
-      .required(),
-    confirm: string()
-      .trim()
-      .required()
-      .oneOf([ref('password'), null], `${t('errors.confirm')}`),
-  })
 
   const formik = useFormik({
     initialValues: {
@@ -46,49 +27,40 @@ const SignupPage = () => {
       password: '',
       confirm: '',
     },
+    validationSchema: object({
+      username: string()
+        .min(3, `${t('errors.longName')}`)
+        .max(20, `${t('errors.longName')}`)
+        .trim()
+        .required(`${t('errors.requried')}`),
+      password: string()
+        .min(6, `${t('errors.shortName')}`)
+        .trim()
+        .required(`${t('errors.requried')}`),
+      confirm: string()
+        .trim()
+        .required(`${t('errors.requried')}`)
+        .oneOf([ref('password'), null], `${t('errors.confirm')}`),
+    }),
     onSubmit: async (values) => {
-      setSignupFailedUsername(false)
-      setSignupFailedPassword(false)
-      setSignupFailedConfirm(false)
-      console.log('values is: ', values)
-      const newUserData = async () => {
-        try {
-          const result = await channelSchema.validate(values, { abortEarly: false })
-          return result
-        }
-        catch (error) {
-          const fieldErrors = {}
-          error.inner.forEach((err) => {
-            fieldErrors[err.path] = err.message
-          })
-          console.log('fieldErrors is: ', fieldErrors)
-          setSignupFailedUsername(fieldErrors.username)
-          setSignupFailedPassword(fieldErrors.password)
-          setSignupFailedConfirm(fieldErrors.confirm)
-        }
+      const { username, password } = values
+      formik.setSubmitting(false)
+      try {
+        const res = await axios.post(routes.signupPath(), { username, password })
+        localStorage.setItem('userId', JSON.stringify(res.data))
+        auth.logIn()
+        navigate('/')
       }
-      const userData = await newUserData()
-      if (userData !== undefined) {
-        const { username, password } = userData
-        setSignupBtnDisabled(true)
-        try {
-          const res = await axios.post(routes.signupPath(), { username, password })
-          localStorage.setItem('userId', JSON.stringify(res.data))
-          auth.logIn()
-          navigate('/')
+      catch (err) {
+        // formik.setSubmitting(false)
+        if (err.isAxiosError && (err.response.status === 401 || err.response.status === 409)) {
+          formik.errors.username = t('errors.exist')
+          // setSignupBtnDisabled(false)
+          inputRef.current.select()
+          return
         }
-        catch (err) {
-          formik.setSubmitting(false)
-          if (err.isAxiosError && (err.response.status === 401 || err.response.status === 409)) {
-            setSignupFailedUsername(t('errors.exist'))
-            setSignupBtnDisabled(false)
-            inputRef.current.select()
-            return
-          }
-          throw err
-        }
+        throw err
       }
-      console.log('validated data: ', userData)
     },
   })
 
@@ -100,57 +72,60 @@ const SignupPage = () => {
           <Card.Body>
             <Form onSubmit={formik.handleSubmit}>
               <Form.Group className="mb-3" controlId="usermane">
-                {/* <Form.Label>Username</Form.Label> */}
+                <Form.Label>{t('placeholders.signupUsername')}</Form.Label>
                 <Form.Control
                   name="username"
                   type="name"
-                  placeholder={t('placeholders.signupUsername')}
+                  // placeholder={t('placeholders.signupUsername')}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   value={formik.values.username}
-                  isInvalid={signupFailedUsername}
+                  isInvalid={!!formik.errors.username && formik.touched.username}
                   required
                   ref={inputRef}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {signupFailedUsername}
+                  {formik.errors.username}
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3" controlId="Password">
-                {/* <Form.Label>Password</Form.Label> */}
+                <Form.Label>{t('placeholders.password')}</Form.Label>
                 <Form.Control
                   name="password"
                   type="password"
-                  placeholder={t('placeholders.password')}
+                  // placeholder={t('placeholders.password')}
                   onChange={formik.handleChange}
                   value={formik.values.password}
                   autoComplete="current-password"
-                  isInvalid={signupFailedPassword}
+                  onBlur={formik.handleBlur}
+                  isInvalid={!!formik.errors.password && formik.touched.password}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
-                  {signupFailedPassword}
+                  {formik.errors.password}
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3" controlId="Confirm">
-                {/* <Form.Label>Password</Form.Label> */}
+                <Form.Label>{t('placeholders.confirm')}</Form.Label>
                 <Form.Control
                   name="confirm"
                   type="password"
-                  placeholder={t('placeholders.confirm')}
+                  // placeholder={t('placeholders.confirm')}
                   onChange={formik.handleChange}
                   value={formik.values.confirm}
                   autoComplete="current-password"
-                  isInvalid={signupFailedConfirm}
+                  onBlur={formik.handleBlur}
+                  isInvalid={!!formik.errors.confirm && formik.touched.confirm}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
-                  {signupFailedConfirm}
+                  {formik.errors.confirm}
                 </Form.Control.Feedback>
               </Form.Group>
-              <Button variant="primary" type="submit" className="float-end ms-2" disabled={isSignupBtnDisabled}>
+              <Button variant="primary" type="submit" className="float-end ms-2">
                 {t('buttons.signup')}
               </Button>
-              <Button variant="secondary" type="submit" className="float-end" onClick={() => navigate(-1)} disabled={isSignupBtnDisabled}>
+              <Button variant="secondary" type="submit" className="float-end" onClick={() => navigate(-1)}>
                 {t('buttons.back')}
               </Button>
             </Form>

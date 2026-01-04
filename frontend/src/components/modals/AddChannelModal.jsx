@@ -30,10 +30,10 @@ const AddChannelModal = ({ show, onHide }) => {
       .max(20, `${t('errors.longName')}`)
       .notOneOf(existingChannels, `${t('errors.channelExist')}`)
       .trim()
-      .required()
-      .test('profanity-check', `${t('errors.profinity')}`, (value) => {
+      .required(),
+    /* .test('profanity-check', `${t('errors.profinity')}`, (value) => {
         return !profanityFilter.check(value || '')
-      }),
+      }), */
   })
 
   const formik = useFormik({
@@ -54,9 +54,11 @@ const AddChannelModal = ({ show, onHide }) => {
       }
       const res = await newChannelName()
       console.log('RES is: ', res)
-      if (res) {
+      const safeValue = { name: profanityFilter.clean(res.name) }
+      console.log(safeValue)
+      if (safeValue) {
         try {
-          const newChannelData = await dispatch(addChannel(res))
+          const newChannelData = await dispatch(addChannel(safeValue))
           if (!newChannelData || !newChannelData.payload) {
             notify.networkError()
             return

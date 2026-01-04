@@ -12,3 +12,6 @@ run dev:
 
 lint:
 	npx eslint --ext js,jsx
+
+test:
+	npx playwright test

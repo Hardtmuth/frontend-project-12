@@ -59,11 +59,11 @@ const AuthPage = () => {
           <Card.Body>
             <Form onSubmit={formik.handleSubmit}>
               <Form.Group className="mb-3" controlId="usermane">
-                {/* <Form.Label>Username</Form.Label> */}
+                <Form.Label>{t('placeholders.username')}</Form.Label>
                 <Form.Control
                   name="username"
                   type="name"
-                  placeholder={t('placeholders.username')}
+                  // placeholder={t('placeholders.username')}
                   onChange={formik.handleChange}
                   value={formik.values.username}
                   isInvalid={authFailed}
@@ -72,11 +72,11 @@ const AuthPage = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="Password">
-                {/* <Form.Label>Password</Form.Label> */}
+                <Form.Label>{t('placeholders.password')}</Form.Label>
                 <Form.Control
                   name="password"
                   type="password"
-                  placeholder={t('placeholders.password')}
+                  // placeholder={t('placeholders.password')}
                   onChange={formik.handleChange}
                   value={formik.values.password}
                   autoComplete="current-password"

@@ -93,7 +93,7 @@ const Chat = () => {
                     onClick={() => setRoom(room)}
                     style={{ cursor: 'pointer' }}
                   >
-                    {`# ${room.name}`}
+                    <Button variant="outline-dark">{`# ${room.name}`}</Button>
                   </li>
                   <Dropdown.Toggle
                     as={Button}
@@ -123,7 +123,7 @@ const Chat = () => {
                   className={liClasses}
                   onClick={() => setRoom(room)}
                 >
-                  {`# ${room.name}`}
+                  <Button variant="outline-dark">{`# ${room.name}`}</Button>
                 </li>
               )
         })

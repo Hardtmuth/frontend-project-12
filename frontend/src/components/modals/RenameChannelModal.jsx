@@ -25,10 +25,10 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       .max(20, `${t('errors.longName')}`)
       .notOneOf(existingChannels, `${t('errors.channelExist')}`)
       .trim()
-      .required()
-      .test('profanity-check', `${t('errors.profinity')}`, (value) => {
+      .required(),
+    /* .test('profanity-check', `${t('errors.profinity')}`, (value) => {
         return !profanityFilter.check(value || '')
-      }),
+      }), */
   })
 
   const formik = useFormik({
@@ -50,15 +50,16 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       }
       const editedChannel = await newChannelName()
       console.log('RES is: ', editedChannel)
-      if (editedChannel) {
+      const safeValue = { name: profanityFilter.clean(editedChannel.name) }
+      if (safeValue) {
         try {
-          const newChannelData = await dispatch(updateChannel({ id: channelId, editedChannel }))
+          const newChannelData = await dispatch(updateChannel({ id: channelId, editedChannel: safeValue }))
           console.log(newChannelData)
           if (!newChannelData || !newChannelData.payload) {
             notify.networkError()
             return
           }
-          dispatch(setActiveChannel({ id: channelId, ...editedChannel }))
+          dispatch(setActiveChannel({ id: channelId, ...safeValue }))
           // console.log('newChannelData', newChannelData.payload)
           notify.rename()
           onHide()
@@ -96,6 +97,7 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       <Modal.Body>
         <Formik>
           <Form onSubmit={formik.handleSubmit}>
+            <Form.Label>{t('locators.rename')}</Form.Label>
             <Form.Control
               name="name"
               type="name"
