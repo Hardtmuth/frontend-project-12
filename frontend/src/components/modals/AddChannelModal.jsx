@@ -98,7 +98,7 @@ const AddChannelModal = ({ show, onHide }) => {
             <Form.Control
               name="name"
               type="name"
-              placeholder={t('placeholders.add')}
+              // placeholder={t('placeholders.add')}
               onChange={formik.handleChange}
               value={formik.values.name}
               isInvalid={channelNameError}
@@ -113,9 +113,9 @@ const AddChannelModal = ({ show, onHide }) => {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
-          {t('buttons.close')}
+          {t('buttons.cancel')}
         </Button>
-        <Button variant="primary" onClick={formik.handleSubmit}>{t('buttons.add')}</Button>
+        <Button variant="primary" onClick={formik.handleSubmit}>{t('buttons.send')}</Button>
       </Modal.Footer>
     </Modal>
   )

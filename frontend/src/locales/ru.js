@@ -1,6 +1,7 @@
 export default {
   headers: {
     brand: 'Hexlet Chat',
+    login: 'Войти',
     signup: 'Регистрация',
     error: 'Ошибка!',
     warning: 'Внимание',
@@ -13,8 +14,9 @@ export default {
     href: 'Регистрация',
   },
   placeholders: {
-    username: 'Введите имя пользователя',
-    password: 'Введите пароль',
+    username: 'Ваш ник',
+    signupUsername: 'Имя пользователя',
+    password: 'Пароль',
     confirm: 'Подтвердите пароль',
     message: 'Введите сообщение...',
     add: 'Введите имя для нового канала',
@@ -31,6 +33,7 @@ export default {
     add: 'Добавить',
     close: 'Закрыть',
     cancel: 'Отменить',
+    plus: ' + ',
   },
   content: {
     channels: 'Каналы',
@@ -44,18 +47,19 @@ export default {
     messages_other: '{{count}} сообщений',
   },
   notifications: {
-    add: 'Канал успешно добавлен',
-    rename: 'Канал успешно переименован',
-    delete: 'Канал успешно удален',
+    add: 'Канал создан',
+    rename: 'Канал переименован',
+    delete: 'Канал удалён',
   },
   errors: {
     auth: 'Неверные имя пользователя или пароль',
     exist: 'Пользователь с таким именем уже существует',
+    confirm: 'Пароли должны совпадать',
     notfound: '404',
-    shortName: 'Имя должно содержать более 3 символов',
-    longName: 'Имя должно содержать не более 20 символов',
+    shortName: 'Не менее 6 символов',
+    longName: 'От 3 до 20 символов',
     channelExist: 'Канал с таким именем уже существует',
-    network: 'Ошибка загрузки данных с сервера',
+    network: 'Ошибка соединения',
     profinity: 'Нецензурная лексика запрещена',
   },
 }

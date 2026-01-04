@@ -214,7 +214,8 @@ const Chat = () => {
               className="p-0 btn btn-group-vertical"
               onClick={handleShow}
             >
-              <PlusLg className="mx-1" />
+              {t('buttons.plus')}
+              {/* <PlusLg className="mx-1" /> */}
             </Button>
             <AddChannelModal show={showAddChannelModal} onHide={handleClose} />
           </div>

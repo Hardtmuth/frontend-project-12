@@ -114,10 +114,10 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
-          {t('buttons.close')}
+          {t('buttons.cancel')}
         </Button>
         <Button variant="primary" onClick={formik.handleSubmit}>
-          {t('buttons.rename')}
+          {t('buttons.send')}
         </Button>
       </Modal.Footer>
     </Modal>

@@ -25,9 +25,19 @@ const SignupPage = () => {
   }, [])
 
   const channelSchema = object({
-    username: string().min(3).max(20).trim().required(),
-    password: string().min(6).trim().required(),
-    confirm: string().trim().required().oneOf([ref('password'), null]),
+    username: string()
+      .min(3, `${t('errors.shortName')}`)
+      .max(20, `${t('errors.longName')}`)
+      .trim()
+      .required(),
+    password: string()
+      .min(6, `${t('errors.shortName')}`)
+      .trim()
+      .required(),
+    confirm: string()
+      .trim()
+      .required()
+      .oneOf([ref('password'), null], `${t('errors.confirm')}`),
   })
 
   const formik = useFormik({
@@ -94,7 +104,7 @@ const SignupPage = () => {
                 <Form.Control
                   name="username"
                   type="name"
-                  placeholder={t('placeholders.username')}
+                  placeholder={t('placeholders.signupUsername')}
                   onChange={formik.handleChange}
                   value={formik.values.username}
                   isInvalid={signupFailedUsername}

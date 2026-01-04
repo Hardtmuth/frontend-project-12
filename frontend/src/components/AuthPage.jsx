@@ -55,7 +55,7 @@ const AuthPage = () => {
     <Formik>
       <Container max-width="300px">
         <Card>
-          <Card.Header className="fw-bold fs-5">{t('headers.brand')}</Card.Header>
+          <Card.Header className="fw-bold fs-5">{t('headers.login')}</Card.Header>
           <Card.Body>
             <Form onSubmit={formik.handleSubmit}>
               <Form.Group className="mb-3" controlId="usermane">
