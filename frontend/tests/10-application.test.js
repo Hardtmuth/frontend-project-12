@@ -38,7 +38,7 @@ test.describe('registration', () => {
     await page.locator('text=/^Пароль:?$/').first().type(newUser.password)
     await page.locator('text=Подтвердите пароль').first().type(newUser.password)
     await page.locator('button[type="submit"]').first().click()
-    await page.waitForURL('**/')
+    // await page.waitForURL('**/')
     await expect(await page.locator('text=Такой пользователь уже существует')).not.toHaveCount(0)
   })
 

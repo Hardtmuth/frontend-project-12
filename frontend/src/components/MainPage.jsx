@@ -100,6 +100,7 @@ const Chat = () => {
                     variant="outline-dark"
                     size="sm"
                     className="p-1 channel-list"
+                    aria-label={t('areas.control')}
                     style={{
                       position: 'absolute',
                       right: '8px',
@@ -108,9 +109,9 @@ const Chat = () => {
                     }}
                   >
                   </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item eventKey="1" onClick={handleDeleteShow}>{t('buttons.delete')}</Dropdown.Item>
-                    <Dropdown.Item eventKey="2" onClick={handleReanameShow}>{t('buttons.rename')}</Dropdown.Item>
+                  <Dropdown.Menu data-testid={t('areas.control')}>
+                    <Dropdown.Item eventKey="1" onClick={handleDeleteShow} aria-label={t('areas.delete')}>{t('buttons.delete')}</Dropdown.Item>
+                    <Dropdown.Item eventKey="2" onClick={handleReanameShow} aria-label={t('areas.rename')}>{t('buttons.rename')}</Dropdown.Item>
                   </Dropdown.Menu>
                   <RenameChannelModal show={showRenameChannelModal} onHide={handleRenameClose} channelId={room.id} />
                   <DeleteChannelModal show={showDeleteChannelModal} onHide={handleDeleteClose} channelId={room.id} />
@@ -213,6 +214,7 @@ const Chat = () => {
             <Button
               className="p-0 btn btn-group-vertical"
               onClick={handleShow}
+              aria-label={t('areas.add')}
             >
               {t('buttons.plus')}
               {/* <PlusLg className="mx-1" /> */}
@@ -237,6 +239,7 @@ const Chat = () => {
               <Form.Control
                 name="message"
                 type="text"
+                aria-label={t('areas.message')}
                 placeholder={t('placeholders.message')}
                 onChange={formik.handleChange}
                 value={formik.values.message}
