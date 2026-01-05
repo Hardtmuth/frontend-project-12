@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Button, Modal, Form } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { Formik, useFormik } from 'formik'
+import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import { useTranslation } from 'react-i18next'
 
@@ -11,56 +11,47 @@ import notify from '../../notifications.js'
 import profanityFilter from '../../profanityFilter.js'
 
 const RenameChannelModal = ({ channelId, show, onHide }) => {
-  const [channelNameError, setchannelNameError] = useState('')
+  const inputRenameChannelName = useRef()
 
   const dispatch = useDispatch()
   const { t } = useTranslation()
 
   const channels = useSelector(selectors.selectEntities)
+  // const renamedChannelName = Object.values(channels).filter(c => c.id === channelId).map(c => c.name)
+  // console.log(renamedChannelName)
   const existingChannels = Object.values(channels).map(c => c.name)
 
-  const channelSchema = object({
-    name: string()
-      .min(3, `${t('errors.shortName')}`)
-      .max(20, `${t('errors.longName')}`)
-      .notOneOf(existingChannels, `${t('errors.channelExist')}`)
-      .trim()
-      .required(),
-    /* .test('profanity-check', `${t('errors.profinity')}`, (value) => {
-        return !profanityFilter.check(value || '')
-      }), */
-  })
+  useEffect(() => {
+    if (show && inputRenameChannelName.current) {
+      inputRenameChannelName.current.focus()
+    }
+    console.log('rename channel input ref: ', inputRenameChannelName.current)
+  }, [show])
 
   const formik = useFormik({
     initialValues: {
       name: '',
     },
+    validationSchema: object({
+      name: string()
+        .min(3, `${t('errors.shortName')}`)
+        .max(20, `${t('errors.longName')}`)
+        .notOneOf(existingChannels, `${t('errors.channelExist')}`)
+        .trim(),
+    }),
     onSubmit: async (value) => {
-      console.log('channelId: ', channelId)
-      const newChannelName = async () => {
-        try {
-          setchannelNameError('')
-          const result = await channelSchema.validate(value)
-          return result
-        }
-        catch (err) {
-          console.log(err.message)
-          setchannelNameError(err.message)
-        }
-      }
-      const editedChannel = await newChannelName()
-      console.log('RES is: ', editedChannel)
-      const safeValue = { name: profanityFilter.clean(editedChannel.name) }
+      const safeValue = { name: profanityFilter.clean(value.name) }
+      // console.log('channelId: ', channelId)
       if (safeValue) {
         try {
           const newChannelData = await dispatch(updateChannel({ id: channelId, editedChannel: safeValue }))
-          console.log(newChannelData)
           if (!newChannelData || !newChannelData.payload) {
             notify.networkError()
             return
           }
-          dispatch(setActiveChannel({ id: channelId, ...safeValue }))
-          // console.log('newChannelData', newChannelData.payload)
+          dispatch(setActiveChannel(newChannelData.payload))
+          console.log('newChannelData', newChannelData.payload)
+          formik.resetForm()
           notify.rename()
           onHide()
         }
@@ -69,13 +60,6 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
           notify.networkError()
           return
         }
-        // dispatch(setActiveChannel({ id: channelId, ...editedChannel }))
-        // console.log('newChannelData', newChannelData.payload)
-        // notify.rename()
-        // onHide()
-      }
-      else {
-        console.log('RES is ni valid: ', editedChannel)
       }
     },
   })
@@ -95,27 +79,36 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
         <Modal.Title>{t('headers.rename')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Formik>
-          <Form onSubmit={formik.handleSubmit}>
-            <Form.Label>{t('locators.rename')}</Form.Label>
-            <Form.Control
-              name="name"
-              type="name"
-              placeholder={t('placeholders.rename')}
-              onChange={formik.handleChange}
-              value={formik.values.name}
-              isInvalid={channelNameError}
-              required
-              // ref={inputRef}
-            />
-            <Form.Control.Feedback type="invalid">
-              {channelNameError}
-            </Form.Control.Feedback>
-          </Form>
-        </Formik>
+        <Form onSubmit={formik.handleSubmit}>
+          {/* <Form.Label>{t('areas.name')}</Form.Label> */}
+          <Form.Control
+            name="name"
+            type="text"
+            placeholder={t('placeholders.rename')}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.name}
+            isInvalid={!!formik.errors.name && formik.touched.name}
+            autoFocus
+            required
+            ref={inputRenameChannelName}
+            aria-label={t('areas.name')}
+          />
+          <Form.Control.Feedback type="invalid">
+            {formik.errors.name}
+          </Form.Control.Feedback>
+        </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
+        <Button
+          variant="secondary"
+          onClick={
+            () => {
+              formik.resetForm()
+              onHide()
+            }
+          }
+        >
           {t('buttons.cancel')}
         </Button>
         <Button variant="primary" onClick={formik.handleSubmit}>

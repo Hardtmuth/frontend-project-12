@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { Button, Modal, Form } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { Formik, useFormik } from 'formik'
+import { useFormik } from 'formik'
 import { object, string } from 'yup'
 import { useTranslation } from 'react-i18next'
 
@@ -11,7 +11,6 @@ import notify from '../../notifications.js'
 import profanityFilter from '../../profanityFilter.js'
 
 const AddChannelModal = ({ show, onHide }) => {
-  // const [channelNameError, setChannelNameError] = useState('')
   const inputChannelName = useRef()
 
   const dispatch = useDispatch()
@@ -24,7 +23,7 @@ const AddChannelModal = ({ show, onHide }) => {
     if (show && inputChannelName.current) {
       inputChannelName.current.focus()
     }
-    console.log('add channel input ref: ', inputChannelName.current)
+    // console.log('add channel input ref: ', inputChannelName.current)
   }, [show])
 
   const formik = useFormik({

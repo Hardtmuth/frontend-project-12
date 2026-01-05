@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { ToastContainer, Bounce } from 'react-toastify'
-import { Container, Row, Col, Button, Form, InputGroup, Dropdown } from 'react-bootstrap'
+import { Container, Row, Col, Button, Form, InputGroup, Dropdown, SplitButton, ButtonGroup } from 'react-bootstrap'
 import { PlusLg } from 'react-bootstrap-icons'
-import cn from 'classnames'
+// import cn from 'classnames'
 import '../styles/Chat.css'
 
 import Loading from './Loading.jsx'
@@ -51,6 +51,7 @@ const Chat = () => {
   const [showRenameChannelModal, setShowRenameChannelModal] = useState(false)
   const [showDeleteChannelModal, setShowDeleteChannelModal] = useState(false)
   const [isSendBtnDisabled, setSendBtnDisabled] = useState(false)
+  const [selectedChannelId, setSelectedChannelId] = useState(null)
 
   const handleClose = () => {
     setShowAddChannelModal(false)
@@ -58,11 +59,13 @@ const Chat = () => {
   }
   const handleRenameClose = () => {
     setShowRenameChannelModal(false)
+    setSelectedChannelId(null)
     dispatch(fetchChannels())
     console.log(activeChannel)
   }
   const handleDeleteClose = () => {
     setShowDeleteChannelModal(false)
+    setSelectedChannelId(null)
     dispatch(fetchChannels())
     dispatch(setActiveChannel({ id: '1', name: 'genegal' }))
     console.log(activeChannel)
@@ -84,48 +87,63 @@ const Chat = () => {
     const channelsList = Object.values(rooms)
     return channelsList.length
       ? channelsList.map((room) => {
-          const liClasses = cn({ active: room.name === activeChannel.name })
+          // const liClasses = cn({ active: room.name === activeChannel.name })
           return room.removable
             ? (
-                <Dropdown key={room.id} className="w-100">
-                  <li
-                    className={liClasses}
+                <ButtonGroup
+                  key={`bg-${room.id}`}
+                >
+                  <Button
+                    key={room.id}
+                    variant={room.name === activeChannel.name ? 'secondary' : 'outline-secondary'}
                     onClick={() => setRoom(room)}
-                    style={{ cursor: 'pointer' }}
+                    className="w-100 text-start mb-2"
                   >
-                    <Button variant="outline-dark">{`# ${room.name}`}</Button>
-                  </li>
-                  <Dropdown.Toggle
-                    as={Button}
-                    variant="outline-dark"
-                    size="sm"
-                    className="p-1 channel-list"
-                    aria-label={t('areas.control')}
-                    style={{
-                      position: 'absolute',
-                      right: '8px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                    }}
-                  >
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu data-testid={t('areas.control')}>
-                    <Dropdown.Item eventKey="1" onClick={handleDeleteShow} aria-label={t('areas.delete')}>{t('buttons.delete')}</Dropdown.Item>
-                    <Dropdown.Item eventKey="2" onClick={handleReanameShow} aria-label={t('areas.rename')}>{t('buttons.rename')}</Dropdown.Item>
-                  </Dropdown.Menu>
-                  <RenameChannelModal show={showRenameChannelModal} onHide={handleRenameClose} channelId={room.id} />
-                  <DeleteChannelModal show={showDeleteChannelModal} onHide={handleDeleteClose} channelId={room.id} />
-                </Dropdown>
-
+                    {`# ${room.name}`}
+                  </Button>
+                  <Dropdown>
+                    <Dropdown.Toggle
+                      key={`dd-${room.id}`}
+                      variant={room.name === activeChannel.name ? 'secondary' : 'outline-secondary'}
+                    >
+                      <span className="visually-hidden">
+                        {t('areas.control')}
+                      </span>
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item
+                        eventKey="1"
+                        onClick={() => {
+                          setSelectedChannelId(room.id)
+                          handleDeleteShow()
+                        }}
+                        aria-label={t('areas.delete')}
+                      >
+                        {t('buttons.delete')}
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        eventKey="2"
+                        onClick={() => {
+                          setSelectedChannelId(room.id)
+                          handleReanameShow()
+                        }}
+                        aria-label={t('areas.rename')}
+                      >
+                        {t('buttons.rename')}
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </ButtonGroup>
               )
             : (
-                <li
+                <Button
                   key={room.id}
-                  className={liClasses}
+                  variant={room.name === activeChannel.name ? 'secondary' : 'outline-secondary'}
                   onClick={() => setRoom(room)}
+                  className="w-100 text-start mb-2"
                 >
-                  <Button variant="outline-dark">{`# ${room.name}`}</Button>
-                </li>
+                  {`# ${room.name}`}
+                </Button>
               )
         })
       : null
@@ -220,6 +238,17 @@ const Chat = () => {
               {/* <PlusLg className="mx-1" /> */}
             </Button>
             <AddChannelModal show={showAddChannelModal} onHide={handleClose} />
+            <RenameChannelModal
+              show={showRenameChannelModal}
+              onHide={handleRenameClose}
+              channelId={selectedChannelId}
+            />
+
+            <DeleteChannelModal
+              show={showDeleteChannelModal}
+              onHide={handleDeleteClose}
+              channelId={selectedChannelId}
+            />
           </div>
           <ul>
             {renderRoomsList(channels)}

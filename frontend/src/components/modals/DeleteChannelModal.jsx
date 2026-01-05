@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
@@ -7,11 +7,13 @@ import { removeChannel } from '../../slices/channelsSlice.js'
 import notify from '../../notifications.js'
 
 const RenameChannelModal = ({ channelId, show, onHide }) => {
+  const [isDisabled, setDisabled] = useState(false)
   const dispatch = useDispatch()
   const { t } = useTranslation()
 
   const handleDelete = async (id) => {
     try {
+      setDisabled(true)
       const req = await dispatch(removeChannel({ id }))
       if (!req || !req.payload) {
         notify.networkError()
@@ -21,6 +23,7 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       onHide()
     }
     catch (err) {
+      setDisabled(false)
       console.log(err.message)
       notify.networkError()
       return
@@ -34,7 +37,7 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
       backdrop="static"
       keyboard={false}
     >
-      <Modal.Header closeButton>
+      <Modal.Header>
         <Modal.Title>{t('headers.delete')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -44,7 +47,13 @@ const RenameChannelModal = ({ channelId, show, onHide }) => {
         <Button variant="secondary" onClick={onHide}>
           {t('buttons.cancel')}
         </Button>
-        <Button variant="danger" onClick={() => handleDelete(channelId)}>{t('buttons.delete')}</Button>
+        <Button
+          disabled={isDisabled}
+          variant="danger"
+          onClick={() => handleDelete(channelId)}
+        >
+          {t('buttons.delete')}
+        </Button>
       </Modal.Footer>
     </Modal>
   )
