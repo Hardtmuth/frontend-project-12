@@ -1,12 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { ToastContainer, Bounce } from 'react-toastify'
-import { Container, Row, Col, Button, Form, InputGroup, Dropdown, SplitButton, ButtonGroup } from 'react-bootstrap'
-import { PlusLg } from 'react-bootstrap-icons'
-// import cn from 'classnames'
+import { Container, Row, Col, Button, Form, InputGroup, Dropdown, ButtonGroup } from 'react-bootstrap'
 import '../styles/Chat.css'
-
-import Loading from './Loading.jsx'
 
 import { useFormik } from 'formik'
 import { io } from 'socket.io-client'

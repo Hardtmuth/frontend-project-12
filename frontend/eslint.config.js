@@ -27,5 +27,6 @@ export default defineConfig([
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
+    ignores: ['/node_modules/*', '/dist/*, /build/*'],
   },
 ])

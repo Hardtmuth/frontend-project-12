@@ -1,5 +1,4 @@
-import { StrictMode } from 'react'
-import ReactDOM, { createRoot } from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import './i18next.js'
 

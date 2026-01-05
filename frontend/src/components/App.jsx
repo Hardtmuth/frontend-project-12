@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import MainPage from './MainPage.jsx'

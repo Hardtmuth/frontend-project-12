@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Button, Modal, Form } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 
